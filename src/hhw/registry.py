@@ -1,4 +1,5 @@
 from hhw.collectors.manual import ManualLeadCollector
+from hhw.collectors.official_vendor import OfficialVendorWatchCollector
 from hhw.collectors.german_shop import GermanCatalogueCollector
 from hhw.collectors.serverpunt import ServerPuntCollector
 from hhw.collectors.serverzaak import ServerZaakCollector
@@ -8,6 +9,18 @@ from hhw.collectors.woocommerce import WooCommerceCategoryCollector
 
 def norwegian_collectors():
     return [
+        OfficialVendorWatchCollector(
+            vendor_id="dell_no",
+            url="https://www.dell.com/no-no/shop/deals",
+            categories=["tiny", "ci_runner", "proxmox_compute", "ai_server", "workstation"],
+            note="Watch official Norwegian deals, coupons and configured-system campaigns.",
+        ),
+        OfficialVendorWatchCollector(
+            vendor_id="lenovo_no",
+            url="https://www.lenovo.com/no/no/d/deals/",
+            categories=["tiny", "ci_runner", "proxmox_compute", "ai_server", "workstation"],
+            note="Watch ThinkCentre Tiny and ThinkStation/workstation campaigns in the Norwegian store.",
+        ),
         ShopifyProductsCollector(vendor_id="itgarasjen_no", base_url="https://itgarasjen.no",
             collections=["server", "servere-hjemmeside", "arbeidsstasjoner", "deler-og-komponenter"],
             categories=["proxmox_compute", "storage", "tiny", "ci_runner", "components"]),
