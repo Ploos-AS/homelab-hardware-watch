@@ -25,9 +25,25 @@ POLICIES = {
         shipping_price_source="checkout",
         note="International shipments have destination/product-specific shipping costs; Norway availability and export VAT treatment still require checkout/vendor confirmation.",
     ),
-    "servershop24_de": VendorImportPolicy("servershop24_de", note="Require Norway checkout/quote before delivered-cost comparison."),
-    "gekko_de": VendorImportPolicy("gekko_de", note="Require Norway checkout/quote before delivered-cost comparison."),
-    "serverando_de": VendorImportPolicy("serverando_de", note="Configurable systems; require final configuration and Norway checkout/quote."),
+    "servershop24_de": VendorImportPolicy(
+        "servershop24_de",
+        norway_shipping="confirmed",
+        export_vat_treatment="confirmed",
+        shipping_price_source="weight_table",
+        note="Norway is an explicit non-EU destination with parcel/freight rates. Non-EU deliveries receive a net invoice; use actual product/order weight for shipping.",
+    ),
+    "gekko_de": VendorImportPolicy(
+        "gekko_de",
+        norway_shipping="checkout",
+        shipping_price_source="checkout",
+        note="Shipping is destination-selectable, but Norway-specific shipping and export VAT treatment are not yet sufficiently verified.",
+    ),
+    "serverando_de": VendorImportPolicy(
+        "serverando_de",
+        norway_shipping="confirmed",
+        shipping_price_source="weight_table",
+        note="Norway is explicitly in shipping zone 7 with weight-based rates. Export VAT treatment is not yet verified; configurable systems also require final configuration.",
+    ),
     "secondhandserver_eu": VendorImportPolicy(
         "secondhandserver_eu",
         norway_shipping="quote",
