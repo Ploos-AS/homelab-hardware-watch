@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hhw.enterprise_score import _price_signal
+from hhw.decision_price import decision_price_signal
 from hhw.models import Candidate
 
 
@@ -48,7 +48,7 @@ def score_managed_switch(candidate: Candidate) -> dict:
         elif idle >= 100:
             score -= 10; reasons.append("idle_power>=100w")
 
-    price, confidence = _price_signal(candidate)
+    price, confidence, ready = decision_price_signal(candidate)
     if price is not None:
         if price <= 1500:
             points = 25
@@ -75,6 +75,7 @@ def score_managed_switch(candidate: Candidate) -> dict:
         "price_scored": price is not None,
         "price_nok": price,
         "price_confidence": confidence,
+        "ready_cost": ready,
         "managed": hw.get("managed"),
         "uplink_max_gbps": uplink,
     }
