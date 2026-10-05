@@ -1,0 +1,64 @@
+version: 1
+
+targets:
+  proxmox_compute:
+    description: General Proxmox and homelab compute nodes
+    desired_quantity: 2-3
+    target_delivered_nok: 4000
+    preferred:
+      memory_gb_min: 64
+      ecc: preferred
+      pcie: true
+      remote_management: preferred
+      networking_gbps_min: 1
+
+  ci_runner:
+    description: Forgejo and general CI runners
+    desired_quantity: 3-5
+    target_delivered_nok: 2500
+    preferred:
+      memory_gb_min: 16
+      low_power: true
+      linux_support: true
+
+  ai_server:
+    description: Dedicated GPU-capable AI host
+    desired_quantity: 1
+    target_chassis_delivered_nok: 5000
+    preferred:
+      full_height_gpu: true
+      pcie_slots_min: 2
+      psu_headroom: true
+      memory_gb_min: 64
+
+  storage:
+    description: Primary and backup storage servers
+    desired_quantity: 2
+    target_delivered_nok: 7000
+    preferred:
+      ecc: true
+      drive_bays_min: 8
+      lff_35: preferred
+      hba: preferred
+      networking_gbps_min: 10
+
+  managed_switch:
+    description: Managed access/core switching
+    desired_quantity: opportunistic
+    target_delivered_nok: 2500
+    preferred:
+      vlan: true
+      lacp: true
+      managed: true
+      uplink_gbps_min: 10
+
+  tiny:
+    description: Tiny/Mini/Micro low-power general compute
+    desired_quantity: opportunistic
+    reference:
+      class: intel_n100_n150
+      assumed_base_price_nok_ex_vat: 1600
+    preferred:
+      memory_gb_min: 16
+      nvme: true
+      low_power: true
