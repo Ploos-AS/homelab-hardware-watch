@@ -1,5 +1,8 @@
 N150_REFERENCE = {
-    "name": "Intel N150",
+    "name": "Intel N150 system",
+    "configuration": {
+        "memory_gb": 16,
+    },
     "cores": 4,
     "threads": 4,
     "max_turbo_ghz": 3.6,
@@ -8,6 +11,8 @@ N150_REFERENCE = {
     "base_price_nok_ex_vat": 1600,
     "base_price_nok_inc_vat": 2000,
     "notes": [
+        "The NOK 1,600 ex-VAT working price is specifically for an N150 system with 16 GB RAM.",
+        "Storage capacity is not yet fixed in the M1 reference and must not be assumed.",
         "Price is a project working assumption, not an Intel MSRP.",
         "Intel's official maximum memory specification is 16 GB.",
     ],
