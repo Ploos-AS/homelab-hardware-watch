@@ -6,6 +6,7 @@ from pathlib import Path
 from hhw.alert_policy import filter_alerts
 from hhw.alert_report import markdown_alerts
 from hhw.cost_enrich import enrich_delivered_cost
+from hhw.decision import VALID_ROLES
 from hhw.fx import FxObservation
 from hhw.importers import import_marketplace_json
 from hhw.normalize import normalize_all
@@ -132,7 +133,7 @@ def main():
     parser.add_argument("--report")
     parser.add_argument("--opportunities")
     parser.add_argument("--state-file", default="data/monitor-eu-state.json")
-    parser.add_argument("--role", choices=["proxmox_compute", "storage"], default="proxmox_compute")
+    parser.add_argument("--role", choices=sorted(VALID_ROLES), default="proxmox_compute")
     parser.add_argument("--alerts-only", action="store_true")
     parser.add_argument("--alerts-report")
     args = parser.parse_args()
