@@ -2,24 +2,24 @@
 
 The canonical comparison price is `delivered_nok`.
 
-For imported hardware it is not simply catalogue EUR × exchange rate.
+For imported hardware it is not simply catalogue EUR × exchange rate. The model records displayed item price, foreign VAT/export treatment, dated exchange rate, shipping, Norwegian VAT basis, customs/import inputs and handling.
 
-The model records:
+## VAT basis
 
-1. displayed item price
-2. whether foreign VAT is included
-3. whether that VAT is removed for export to Norway
-4. explicit exchange rate
-5. shipping
-6. Norwegian VAT
-7. handling/import fee
+The current calculator applies Norwegian VAT to:
 
-Norwegian VAT is calculated on item value plus shipping in the current model.
+- export-adjusted item value
+- shipping
+- customs duty
+- import fees that are part of the taxable basis
+
+Carrier/handling cost is represented separately as `handling_nok` and is added after the calculated Norwegian VAT. Evidence must determine whether a real fee belongs in `import_fees_nok` or `handling_nok`; do not silently assume zero.
 
 ## Fail closed
 
 A candidate is not economically comparable when a required input is unknown. Important reasons include:
 
+- `item_price_unknown`
 - `exchange_rate_unknown`
 - `shipping_unknown`
 - `handling_unknown`
@@ -28,6 +28,15 @@ A candidate is not economically comparable when a required input is unknown. Imp
 
 The watch must not silently assume that an EU seller removes local VAT for Norway.
 
-## Exchange rates
+## Exchange-rate confidence
 
-No hard-coded EUR/NOK rate is used. Rates must be supplied as dated observations by a later rate provider so historical comparisons remain reproducible.
+Rates are dated observations so historical comparisons remain reproducible.
+
+- Norges Bank observations are treated as `indicative_market_rate` and produce an `estimate`.
+- Tolletaten/customs observations are treated as `customs_rate` and can produce `import_confirmed` cost status when the other required inputs are known.
+
+Raw foreign-currency prices are never compared directly with NOK thresholds.
+
+## Evidence
+
+Reusable vendor evidence is dated and source-attributed. Candidate-specific checkout or quote metadata overrides reusable vendor evidence. Future evidence is never applied retroactively to an older candidate observation.
