@@ -1,4 +1,5 @@
 from hhw.collectors.manual import ManualLeadCollector
+from hhw.collectors.german_shop import GermanCatalogueCollector
 from hhw.collectors.serverpunt import ServerPuntCollector
 from hhw.collectors.serverzaak import ServerZaakCollector
 from hhw.collectors.shopify import ShopifyProductsCollector
@@ -27,6 +28,16 @@ def european_collectors():
     return [
         ServerPuntCollector(),
         ServerZaakCollector(),
+        GermanCatalogueCollector(
+            vendor_id="servershop24_de",
+            urls=["https://www.servershop24.de/en/"],
+            configurable=False,
+        ),
+        GermanCatalogueCollector(
+            vendor_id="serverando_de",
+            urls=["https://serverando.de/en/", "https://serverando.de/en/server/rack-server/dell/"],
+            configurable=True,
+        ),
         ManualLeadCollector(
             vendor_id="secondhandserver_eu",
             url="https://www.secondhandserver.eu/",
