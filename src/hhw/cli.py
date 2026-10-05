@@ -1,13 +1,17 @@
 import argparse
 import json
+from datetime import date, timedelta
 from pathlib import Path
 
+from hhw.cost_enrich import enrich_delivered_cost
+from hhw.fx import FxObservation
 from hhw.importers import import_marketplace_json
 from hhw.normalize import normalize_all
 from hhw.opportunity_report import markdown_opportunities
 from hhw.parity import configuration_parity
+from hhw.providers.norges_bank import fetch_daily
 from hhw.reference import N150_REFERENCE, price_vs_n150
-from hhw.registry import norwegian_collectors
+from hhw.registry import european_collectors, norwegian_collectors
 from hhw.report import markdown_report
 
 
@@ -23,14 +27,18 @@ def enrich(candidates):
     return candidates
 
 
-def collect_norway(marketplace_files=None):
-    candidates = []
-    errors = []
-    for collector in norwegian_collectors():
+def _collect(collectors):
+    candidates, errors = [], []
+    for collector in collectors:
         try:
             candidates.extend(collector.collect())
         except Exception as exc:
             errors.append({"vendor_id": collector.vendor_id, "error": str(exc)})
+    return candidates, errors
+
+
+def collect_norway(marketplace_files=None):
+    candidates, errors = _collect(norwegian_collectors())
     for path in marketplace_files or []:
         try:
             candidates.extend(import_marketplace_json(path))
@@ -39,28 +47,82 @@ def collect_norway(marketplace_files=None):
     return enrich(candidates), errors
 
 
-def main():
-    parser = argparse.ArgumentParser(prog="hhw")
-    parser.add_argument("command", choices=["collect-no"])
-    parser.add_argument("--marketplace", action="append", default=[],
-                        help="JSON marketplace observation file; may be repeated")
-    parser.add_argument("--out", default="data/current-no.json")
-    parser.add_argument("--report", default="reports/current-no.md")
-    parser.add_argument("--opportunities", default="reports/current-opportunities.md")
-    args = parser.parse_args()
+def load_fx(path):
+    p = Path(path)
+    if not p.exists():
+        return []
+    data = json.loads(p.read_text(encoding="utf-8"))
+    return [
+        FxObservation(x["base"], x["quote"], float(x["rate"]), date.fromisoformat(x["observed_on"]), x["source"])
+        for x in data.get("observations", [])
+    ]
 
-    candidates, errors = collect_norway(args.marketplace)
-    for path in (args.out, args.report, args.opportunities):
+
+def collect_europe(fx_file="data/fx.json", observed_on=None):
+    candidates, errors = _collect(european_collectors())
+    candidates = enrich(candidates)
+    fx = load_fx(fx_file)
+    day = observed_on or date.today()
+    for candidate in candidates:
+        if candidate.item_price is not None:
+            enrich_delivered_cost(candidate, fx, day)
+    return candidates, errors
+
+
+def update_fx(path="data/fx.json", currency="EUR", days=14):
+    end = date.today()
+    start = end - timedelta(days=days)
+    observations = fetch_daily(currency, start, end)
+    payload = {"observations": [
+        {"base": x.base, "quote": x.quote, "rate": x.rate,
+         "observed_on": x.observed_on.isoformat(), "source": x.source}
+        for x in observations
+    ]}
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return observations
+
+
+def write_outputs(candidates, errors, out, report, opportunities):
+    for path in (out, report, opportunities):
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-
-    Path(args.out).write_text(json.dumps({
+    Path(out).write_text(json.dumps({
         "reference": {"n150": N150_REFERENCE},
         "candidates": [c.to_dict() for c in candidates],
         "errors": errors,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    Path(args.report).write_text(markdown_report(candidates), encoding="utf-8")
-    Path(args.opportunities).write_text(markdown_opportunities(candidates), encoding="utf-8")
+    Path(report).write_text(markdown_report(candidates), encoding="utf-8")
+    Path(opportunities).write_text(markdown_opportunities(candidates), encoding="utf-8")
 
+
+def main():
+    parser = argparse.ArgumentParser(prog="hhw")
+    parser.add_argument("command", choices=["collect-no", "collect-eu", "fx-update"])
+    parser.add_argument("--marketplace", action="append", default=[])
+    parser.add_argument("--fx-file", default="data/fx.json")
+    parser.add_argument("--out")
+    parser.add_argument("--report")
+    parser.add_argument("--opportunities")
+    args = parser.parse_args()
+
+    if args.command == "fx-update":
+        observations = update_fx(args.fx_file)
+        print(f"stored {len(observations)} FX observations in {args.fx_file}")
+        return
+
+    if args.command == "collect-eu":
+        candidates, errors = collect_europe(args.fx_file)
+        out = args.out or "data/current-eu.json"
+        report = args.report or "reports/current-eu.md"
+        opportunities = args.opportunities or "reports/current-eu-opportunities.md"
+    else:
+        candidates, errors = collect_norway(args.marketplace)
+        out = args.out or "data/current-no.json"
+        report = args.report or "reports/current-no.md"
+        opportunities = args.opportunities or "reports/current-opportunities.md"
+
+    write_outputs(candidates, errors, out, report, opportunities)
     if errors:
         print(json.dumps(errors, ensure_ascii=False, indent=2))
 

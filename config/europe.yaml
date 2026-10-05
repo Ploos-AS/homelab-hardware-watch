@@ -1,0 +1,39 @@
+version: 1
+home_country: NO
+home_currency: NOK
+
+regions:
+  netherlands:
+    country_code: NL
+    currency: EUR
+    priority: 1
+    vendors:
+      - serverpunt
+      - serverzaak
+      - secondhandserver
+    notes:
+      - Prefer explicit EU-wide shipping where documented.
+      - Do not assume Dutch free-shipping thresholds apply to Norway.
+      - Preserve ex-VAT and inc-VAT prices separately when available.
+
+  germany:
+    country_code: DE
+    currency: EUR
+    priority: 2
+    vendors:
+      - servershop24
+      - serverando
+      - gekko
+      - serverschmiede
+
+  nordics:
+    priority: 3
+    vendors:
+      - reuseit
+      - avserver
+      - uniplus
+
+  baltics:
+    priority: 4
+    vendors:
+      - renewedservers
