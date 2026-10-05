@@ -81,7 +81,9 @@ def score_enterprise(candidate: Candidate, role: str) -> dict:
             reasons.append("estimated_delivered_price_penalty")
         score += price_points
         if price_points:
-            reasons.append(f"delivered_nok<={3000 if price <= 3000 else 5000 if price <= 5000 else 7000}")
+            threshold = 3000 if price <= 3000 else 5000 if price <= 5000 else 7000
+            prefix = "nok" if price_confidence == "domestic" else "delivered_nok"
+            reasons.append(f"{prefix}<={threshold}")
         reasons.append(f"price_confidence:{price_confidence}")
     else:
         reasons.append("price_not_nok_comparable")
