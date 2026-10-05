@@ -27,6 +27,12 @@ def european_collectors():
     return [
         ServerPuntCollector(),
         ServerZaakCollector(),
+        ManualLeadCollector(
+            vendor_id="secondhandserver_eu",
+            url="https://www.secondhandserver.eu/",
+            categories=["proxmox_compute", "storage", "networking", "managed_switch", "components"],
+            note="RFQ-oriented European reseller with explicit Norway coverage; active server/network stock but no reliable public item-price feed. Capture quotes as observations, never infer prices.",
+        ),
     ]
 
 
