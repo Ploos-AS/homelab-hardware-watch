@@ -10,6 +10,7 @@ from hhw.normalize import normalize_all
 from hhw.opportunity_report import markdown_opportunities
 from hhw.parity import configuration_parity
 from hhw.providers.norges_bank import fetch_daily
+from hhw.providers.tolletaten import fetch_current as fetch_customs_fx
 from hhw.reference import N150_REFERENCE, price_vs_n150
 from hhw.registry import european_collectors, norwegian_collectors
 from hhw.report import markdown_report
@@ -65,6 +66,14 @@ def collect_europe(fx_file="data/fx.json", evidence_file="data/vendor-evidence.j
     fx = load_fx(fx_file)
     evidence = load_vendor_evidence(evidence_file)
     day = observed_on or date.today()
+    currencies = sorted({c.currency for c in candidates if c.currency not in ("NOK", None)})
+    for currency in currencies:
+        try:
+            customs = fetch_customs_fx(currency, day)
+            if customs is not None:
+                fx.append(customs)
+        except Exception as exc:
+            errors.append({"vendor_id": "tolletaten_fx", "currency": currency, "error": str(exc)})
     for candidate in candidates:
         enrich_delivered_cost(candidate, fx, day, evidence)
     return candidates, errors
