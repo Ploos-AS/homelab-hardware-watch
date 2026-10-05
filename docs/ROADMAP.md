@@ -2,7 +2,7 @@
 
 ## M0 — Foundation — complete
 - [x] Repository purpose and principles
-- [x] Six target product classes
+- [x] Seven target product classes
 - [x] Initial Norwegian/European vendor registry
 - [x] Norway delivered-cost assumptions
 - [x] Initial normalized product model
@@ -44,7 +44,7 @@ Automated FINN acquisition remains deferred until a stable/permitted acquisition
 - [x] End-to-end ServerShop24 R640 acceptance coverage
 - [ ] UK automated collectors (coverage backlog; not an M3 blocker)
 
-## M4 — Decision-quality classification and scoring — next
+## M4 — Decision-quality classification and scoring — active
 Already present:
 - [x] Initial product-class matching
 - [x] Initial Proxmox/storage enterprise scoring
@@ -52,13 +52,17 @@ Already present:
 - [x] Price-confidence-aware BUY/WATCH/PASS actions
 
 Remaining:
-- [ ] Complete class-specific scoring across all six target classes
-- [ ] Missing-component cost model
-- [ ] Noise/power/expandability metadata and scoring
+- [x] Class-specific decision scoring across the seven target classes
+- [x] AI/GPU-host scoring
+- [x] Managed-switch scoring
+- [x] Tiny/CI-runner scoring (x86, ARM64 and macOS roles)
+- [x] UPS scoring with required battery-replacement cost
+- [x] Unified BUY/WATCH/PASS dispatcher
+- [x] Unified opportunity-report integration
+- [x] Unified monitor/action-transition integration
+- [ ] Generalized missing-component cost model beyond UPS batteries
+- [ ] Richer noise/power/expandability metadata and evidence
 - [ ] Architecture-coverage value
-- [ ] AI/GPU-host scoring
-- [ ] Managed-switch scoring
-- [ ] Tiny/CI-runner scoring
 
 ## M5 — Price history
 - [ ] Historical observations/raw snapshots
