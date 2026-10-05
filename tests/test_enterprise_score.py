@@ -1,4 +1,4 @@
-from hhw.enterprise_score import score_enterprise
+from hhw.enterprise_score import enterprise_action, score_enterprise
 from hhw.models import Candidate
 
 
@@ -75,3 +75,17 @@ def test_very_expensive_server_gets_stronger_penalty():
     result = score_enterprise(x, "proxmox_compute")
     assert "delivered_nok>12000_penalty" in result["reasons"]
     assert result["score"] == 0
+
+
+def test_buy_requires_high_score_and_trusted_price():
+    assert enterprise_action({"score": 70, "price_confidence": "domestic"}) == "BUY"
+    assert enterprise_action({"score": 70, "price_confidence": "import_confirmed"}) == "BUY"
+
+
+def test_estimated_import_cannot_auto_buy():
+    assert enterprise_action({"score": 90, "price_confidence": "estimate"}) == "WATCH"
+
+
+def test_medium_score_is_watch_and_low_is_pass():
+    assert enterprise_action({"score": 30, "price_confidence": "domestic"}) == "WATCH"
+    assert enterprise_action({"score": 29, "price_confidence": "domestic"}) == "PASS"
