@@ -3,10 +3,15 @@ from __future__ import annotations
 from hhw.models import Candidate
 
 
-def _nok_price(candidate: Candidate) -> float | None:
-    if candidate.currency != "NOK" or candidate.item_price is None:
-        return None
-    return float(candidate.item_price)
+def _price_signal(candidate: Candidate) -> tuple[float | None, str]:
+    cost = (candidate.metadata or {}).get("delivered_cost") or {}
+    if cost.get("cost_status") == "import_confirmed" and cost.get("import_confirmed_delivered_nok") is not None:
+        return float(cost["import_confirmed_delivered_nok"]), "import_confirmed"
+    if cost.get("cost_status") == "estimate" and cost.get("estimated_delivered_nok") is not None:
+        return float(cost["estimated_delivered_nok"]), "estimate"
+    if candidate.currency == "NOK" and candidate.item_price is not None:
+        return float(candidate.item_price), "domestic"
+    return None, "unknown"
 
 
 def score_enterprise(candidate: Candidate, role: str) -> dict:
@@ -61,15 +66,31 @@ def score_enterprise(candidate: Candidate, role: str) -> dict:
     else:
         raise ValueError(f"unknown enterprise role: {role}")
 
-    price = _nok_price(candidate)
+    price, price_confidence = _price_signal(candidate)
     if price is not None:
         if price <= 3000:
-            score += 30; reasons.append("nok<=3000")
+            price_points = 30
         elif price <= 5000:
-            score += 20; reasons.append("nok<=5000")
+            price_points = 20
         elif price <= 7000:
-            score += 10; reasons.append("nok<=7000")
+            price_points = 10
+        else:
+            price_points = 0
+        if price_confidence == "estimate" and price_points:
+            price_points = max(0, price_points - 5)
+            reasons.append("estimated_delivered_price_penalty")
+        score += price_points
+        if price_points:
+            reasons.append(f"delivered_nok<={3000 if price <= 3000 else 5000 if price <= 5000 else 7000}")
+        reasons.append(f"price_confidence:{price_confidence}")
     else:
         reasons.append("price_not_nok_comparable")
 
-    return {"role": role, "score": score, "reasons": reasons, "price_scored": price is not None}
+    return {
+        "role": role,
+        "score": score,
+        "reasons": reasons,
+        "price_scored": price is not None,
+        "price_nok": price,
+        "price_confidence": price_confidence,
+    }
