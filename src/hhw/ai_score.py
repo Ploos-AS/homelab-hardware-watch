@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hhw.enterprise_score import _price_signal
+from hhw.decision_price import decision_price_signal
 from hhw.models import Candidate
 
 
@@ -55,7 +55,7 @@ def score_ai_host(candidate: Candidate) -> dict:
     if hw.get("gpu_power_connectors_suitable") is False:
         score -= 20; reasons.append("gpu_power_unsuitable")
 
-    price, confidence = _price_signal(candidate)
+    price, confidence, ready = decision_price_signal(candidate)
     gpu_capable = vram is not None or slots >= 1 or hw.get("gpu_full_length_clearance") is True
     if price is not None:
         if price <= 5000 and gpu_capable:
@@ -82,6 +82,7 @@ def score_ai_host(candidate: Candidate) -> dict:
         "price_scored": price is not None,
         "price_nok": price,
         "price_confidence": confidence,
+        "ready_cost": ready,
     }
 
 
