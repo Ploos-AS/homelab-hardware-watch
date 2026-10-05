@@ -1,12 +1,10 @@
 # homelab-hardware-watch
 
-Configuration-driven hardware sourcing watch for a Norway-based homelab.
+Configuration-driven hardware sourcing intelligence for a Norway-based homelab.
 
-## M0 scope
+The project collects hardware candidates from Norwegian and European sources, normalizes them, estimates or confirms delivered cost to Norway, scores enterprise opportunities, and monitors useful candidates for price/action changes.
 
-M0 defines the sourcing model. It does **not** scrape vendors yet.
-
-The project tracks six product classes:
+## Product classes
 
 1. Proxmox / general compute nodes
 2. CI runners
@@ -15,27 +13,37 @@ The project tracks six product classes:
 5. Managed switches
 6. Tiny / Mini / Micro systems
 
-The system is designed around **delivered cost to Norway**, not sticker price. N100/N150-class systems are used as a reference point for low-power compute rather than as a mandatory platform.
+N100/N150-class systems are a reference point for low-power compute, not a mandatory platform.
+
+## Pipeline
+
+`collect → normalize → classify → cost enrich → score → snapshot → detect changes → alert/report`
+
+Imported candidates fail closed when required cost inputs are unknown. Indicative market-rate estimates are distinguished from import-confirmed NOK prices.
 
 ## Repository layout
 
-- `config/vendors.yaml` — vendor registry
-- `config/targets.yaml` — hardware target definitions
-- `config/price-rules.yaml` — bargain thresholds and comparison rules
-- `config/norway.yaml` — Norwegian VAT/import assumptions
-- `docs/SOURCING.md` — sourcing policy
-- `docs/DATA_MODEL.md` — normalized product model
-- `docs/ROADMAP.md` — milestones
+- `config/` — vendors, targets, price rules, Norway assumptions and runner families
+- `data/` — dated reusable evidence and rate/history inputs
+- `docs/` — sourcing, import, scoring and source documentation
+- `src/hhw/` — collectors, normalization, cost, scoring, monitoring and CLI
+- `tests/` — unit/integration/acceptance tests
+- `.github/workflows/` — Python test matrix and scheduled EU monitoring
 
 ## Principles
 
-- Compare **NOK delivered**
+- Compare **delivered NOK**, never raw cross-currency sticker prices
 - Prefer Norwegian refurb when total cost is competitive
-- Treat EU/UK vendors as both sourcing channels and price references
+- Treat EU/UK vendors as sourcing channels and price references
 - Keep vendor-specific collection separate from normalization and scoring
+- Preserve evidence/provenance and fail closed on unknown required inputs
+- Avoid aggressive scraping; prefer feeds/APIs/manual/RFQ collectors where practical
 - Track price history before making long-term bargain rules
-- Avoid aggressive scraping; prefer feeds/APIs/manual collectors where practical
 
 ## Status
 
-**M0 — foundation**
+**M3 complete.**
+
+M0 foundation and M1 Norway are complete. M2 has strong Netherlands/Germany coverage but Nordic/Baltic collector coverage remains incomplete. M3 delivered-cost/import intelligence is merged, including dated FX/evidence, Norway VAT/import modelling, ServerShop24 weight-based shipping, confidence-aware scoring integration and acceptance coverage.
+
+Parts of M4 classification/scoring and M6 monitoring/alerts already exist. The next development milestone is M4 decision-quality scoring; see `docs/ROADMAP.md`.
