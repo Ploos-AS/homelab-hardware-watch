@@ -18,6 +18,7 @@ class MissingComponent:
     cost_nok: float | None = None
     quantity: int = 1
     note: str | None = None
+    evidence_key: str | None = None
 
     @classmethod
     def from_dict(cls, value: dict) -> "MissingComponent":
@@ -36,6 +37,7 @@ class MissingComponent:
             cost_nok=None if cost is None else float(cost),
             quantity=quantity,
             note=value.get("note"),
+            evidence_key=value.get("evidence_key"),
         )
 
 
