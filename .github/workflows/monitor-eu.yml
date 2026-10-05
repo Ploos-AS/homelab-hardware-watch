@@ -42,7 +42,20 @@ jobs:
             --out artifacts/current-eu.json \
             --report artifacts/current-eu.md \
             --opportunities artifacts/current-eu-opportunities.md \
-            | tee artifacts/events.json
+            --alerts-only \
+            --alerts-report artifacts/alerts.md \
+            | tee artifacts/alerts.json
+
+      - name: Publish alert summary
+        if: always()
+        run: |
+          if [ -f artifacts/alerts.md ]; then
+            cat artifacts/alerts.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "# Hardware watch alerts" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Monitor did not produce an alert report." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload monitor results
         if: always()
