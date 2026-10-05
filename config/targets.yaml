@@ -66,3 +66,17 @@ targets:
       memory_gb_min: 16
       nvme: true
       low_power: true
+
+  ups:
+    description: UPS and homelab power protection
+    desired_quantity: opportunistic
+    target_effective_nok: 3000
+    preferred:
+      replaceable_battery: true
+      management: [usb, serial, snmp]
+      nut_or_apcupsd: preferred
+      output_watts_min: 1000
+      topology: [line_interactive, online_double_conversion]
+    notes:
+      - Score effective cost after required battery replacement, not listing price alone.
+      - Prefer serviceable enterprise units with readily available replacement batteries.
