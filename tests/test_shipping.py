@@ -19,3 +19,13 @@ def test_servershop24_freight_tiers():
     assert price_for_weight(200, SERVERSHOP24_NO_FREIGHT) == 169.90
     assert price_for_weight(400, SERVERSHOP24_NO_FREIGHT) == 299.90
     assert price_for_weight(501, SERVERSHOP24_NO_FREIGHT) is None
+
+
+def test_servershop24_cheapest_carrier_for_18kg_server():
+    from hhw.shipping import SERVERSHOP24_NO_METHODS, cheapest_for_weight
+    assert cheapest_for_weight(18, SERVERSHOP24_NO_METHODS) == (103.99, "dhl_express")
+
+
+def test_servershop24_cheapest_carrier_for_22kg_server():
+    from hhw.shipping import SERVERSHOP24_NO_METHODS, cheapest_for_weight
+    assert cheapest_for_weight(22, SERVERSHOP24_NO_METHODS) == (122.99, "dhl_express")
