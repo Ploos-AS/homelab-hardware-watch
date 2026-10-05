@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from hhw.enterprise_score import _price_signal
+from hhw.price_signal import raw_price_signal
 from hhw.models import Candidate
 
 
@@ -50,7 +50,7 @@ def ready_cost(candidate: Candidate) -> dict:
     Only required missing components affect comparability. Optional upgrades are
     retained as evidence but do not block or inflate the ready cost.
     """
-    base_price, confidence = _price_signal(candidate)
+    base_price, confidence = raw_price_signal(candidate)
     components = missing_components(candidate)
     required = [x for x in components if x.required]
     unknown = [x.component for x in required if x.cost_nok is None]
