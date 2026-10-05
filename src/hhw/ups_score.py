@@ -82,6 +82,7 @@ def score_ups(candidate: Candidate) -> dict:
         "effective_cost_nok": effective,
         "battery_replacement_nok": battery_cost if battery_required else 0,
         "price_confidence": confidence,
+        "replaceable_battery": hw.get("replaceable_battery"),
     }
 
 
@@ -90,7 +91,10 @@ def ups_action(result: dict) -> str:
     confidence = result.get("price_confidence", "unknown")
     if not result.get("price_scored"):
         return "WATCH" if score >= 30 else "PASS"
-    if score >= 60 and confidence in {"domestic", "import_confirmed"}:
+    if (score >= 60 and confidence in {"domestic", "import_confirmed"}
+            and result.get("replaceable_battery") is True
+            and result.get("effective_cost_nok") is not None
+            and result["effective_cost_nok"] <= 3000):
         return "BUY"
     if score >= 30:
         return "WATCH"
