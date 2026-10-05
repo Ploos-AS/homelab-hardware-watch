@@ -105,3 +105,17 @@ def score_enterprise(candidate: Candidate, role: str) -> dict:
         "price_nok": price,
         "price_confidence": price_confidence,
     }
+
+
+def enterprise_action(result: dict) -> str:
+    """Convert enterprise score/confidence into an actionable recommendation."""
+    score = result["score"]
+    confidence = result.get("price_confidence", "unknown")
+
+    # BUY requires a trustworthy NOK price signal. Estimated imports remain WATCH
+    # until checkout/customs assumptions are sufficiently confirmed.
+    if score >= 60 and confidence in {"domestic", "import_confirmed"}:
+        return "BUY"
+    if score >= 30:
+        return "WATCH"
+    return "PASS"
