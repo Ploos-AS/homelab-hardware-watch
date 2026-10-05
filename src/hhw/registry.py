@@ -1,4 +1,5 @@
 from hhw.collectors.manual import ManualLeadCollector
+from hhw.collectors.serverpunt import ServerPuntCollector
 from hhw.collectors.shopify import ShopifyProductsCollector
 from hhw.collectors.woocommerce import WooCommerceCategoryCollector
 
@@ -35,3 +36,13 @@ def norwegian_collectors():
             note="Buyer-list/RFQ source for bulk business IT; do not treat as a normal storefront.",
         ),
     ]
+
+
+def european_collectors():
+    return [
+        ServerPuntCollector(),
+    ]
+
+
+def all_collectors():
+    return norwegian_collectors() + european_collectors()
