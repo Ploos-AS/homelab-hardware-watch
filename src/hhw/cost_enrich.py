@@ -4,6 +4,7 @@ from datetime import date
 from hhw.delivered_cost import DeliveredCostInput, calculate_delivered_nok
 from hhw.fx import FxObservation, rate_to_nok
 from hhw.vendor_evidence import VendorEvidence, latest_evidence
+from hhw.shipping import SERVERSHOP24_NO_DHL_STANDARD, price_for_weight
 
 
 def _evidence_values(evidence, vendor_id, observed_on):
@@ -43,6 +44,16 @@ def enrich_delivered_cost(
 
     # Candidate-specific checkout/quote metadata always wins over reusable vendor evidence.
     merged = {**evidence_values, **metadata}
+    if candidate.vendor_id == "servershop24_de" and "shipping_eur" not in merged:
+        weight = candidate.hardware.get("weight_kg") if candidate.hardware else None
+        shipping = price_for_weight(weight, SERVERSHOP24_NO_DHL_STANDARD)
+        if shipping is not None:
+            merged["shipping_eur"] = shipping
+            evidence_sources.append({
+                "type": "shipping_weight_table",
+                "observed_on": "2026-10-05",
+                "source": "ServerShop24 Norway DHL Standard table",
+            })
     obs = rate_to_nok(candidate.currency, fx, observed_on)
 
     shipping = merged.get("shipping_eur") if candidate.currency == "EUR" else merged.get("shipping_nok")
