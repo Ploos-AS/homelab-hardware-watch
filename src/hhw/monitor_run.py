@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 from hhw.models import Candidate
 from hhw.monitor_store import load_state, save_state
@@ -18,6 +19,7 @@ class MonitorEvent:
 
 
 def run_monitor(candidates: list[Candidate], state_file: str, role: str | None = None) -> list[MonitorEvent]:
+    state_exists = Path(state_file).exists()
     previous = load_state(state_file)
     current: list[Snapshot] = []
     events: list[MonitorEvent] = []
@@ -27,6 +29,8 @@ def run_monitor(candidates: list[Candidate], state_file: str, role: str | None =
         current.append(now)
         before = previous.get(now.candidate_id)
         for event in changes(before, now):
+            if not state_exists and event == "new_candidate":
+                continue
             events.append(MonitorEvent(
                 candidate_id=now.candidate_id,
                 vendor_id=now.vendor_id,
