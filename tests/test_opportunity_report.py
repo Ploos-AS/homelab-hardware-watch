@@ -19,7 +19,7 @@ def test_report_contains_all_decision_roles():
     report = markdown_opportunities([c])
     for role in (
         "proxmox_compute", "storage", "linux_ci", "linux_arm64_ci",
-        "macos_ci", "ai_host", "managed_switch", "ups",
+        "macos_ci", "ai_server", "managed_switch", "ups",
     ):
         assert f"## {role}" in report
     assert "price_not_nok_comparable" in report
