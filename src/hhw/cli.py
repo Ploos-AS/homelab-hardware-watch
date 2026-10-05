@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from hhw.normalize import normalize_all
+from hhw.parity import configuration_parity
 from hhw.reference import N150_REFERENCE, price_vs_n150
 from hhw.registry import norwegian_collectors
 from hhw.report import markdown_report
@@ -19,7 +20,11 @@ def collect_norway():
     candidates = normalize_all(candidates)
     for candidate in candidates:
         if candidate.currency == "NOK":
-            candidate.metadata["n150_price_comparison"] = price_vs_n150(candidate.item_price)
+            parity = configuration_parity(candidate)
+            candidate.metadata["configuration_parity"] = parity
+            candidate.metadata["n150_price_comparison"] = price_vs_n150(
+                parity["adjusted_price_nok"] if parity["comparable"] else None
+            )
     return candidates, errors
 
 
