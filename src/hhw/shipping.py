@@ -6,13 +6,14 @@ from dataclasses import dataclass
 class WeightRate:
     max_kg: float
     price: float
+    min_kg: float = 0.0
 
 
 def price_for_weight(weight_kg: float | None, rates: list[WeightRate]) -> float | None:
     if weight_kg is None or weight_kg < 0:
         return None
     for rate in sorted(rates, key=lambda x: x.max_kg):
-        if weight_kg <= rate.max_kg:
+        if rate.min_kg <= weight_kg <= rate.max_kg:
             return rate.price
     return None
 
@@ -30,35 +31,33 @@ def cheapest_for_weight(weight_kg: float | None, methods: dict[str, list[WeightR
 # Only the ranges needed for current server candidates are encoded here.
 SERVERSHOP24_NO_METHODS = {
     "ups_express_saver": [
-        WeightRate(18, 249.99),
-        WeightRate(19, 257.99),
-        WeightRate(20, 264.99),
-        WeightRate(22, 278.99),
-        WeightRate(24, 289.99),
-        WeightRate(25, 329.99),
+        WeightRate(18, 249.99, 18),
+        WeightRate(19, 257.99, 19),
+        WeightRate(20, 264.99, 20),
+        WeightRate(22, 278.99, 21),
+        WeightRate(24, 289.99, 23),
+        WeightRate(25, 329.99, 25),
     ],
     "fedex": [
-        WeightRate(18, 114.99),
-        WeightRate(20, 114.99),
-        WeightRate(25, 170.99),
+        WeightRate(20, 114.99, 18),
+        WeightRate(25, 170.99, 21),
     ],
     "dhl_standard": [
-        WeightRate(18, 134.99),
-        WeightRate(19, 144.99),
-        WeightRate(20, 144.99),
-        WeightRate(22, 154.99),
-        WeightRate(24, 164.99),
-        WeightRate(25, 174.99),
+        WeightRate(18, 134.99, 18),
+        WeightRate(20, 144.99, 19),
+        WeightRate(22, 154.99, 21),
+        WeightRate(24, 164.99, 23),
+        WeightRate(25, 174.99, 25),
     ],
     "dhl_express": [
-        WeightRate(18, 103.99),
-        WeightRate(19, 107.99),
-        WeightRate(20, 112.99),
-        WeightRate(21, 117.99),
-        WeightRate(22, 122.99),
-        WeightRate(23, 127.99),
-        WeightRate(24, 133.99),
-        WeightRate(25, 138.99),
+        WeightRate(18, 103.99, 18),
+        WeightRate(19, 107.99, 19),
+        WeightRate(20, 112.99, 20),
+        WeightRate(21, 117.99, 21),
+        WeightRate(22, 122.99, 22),
+        WeightRate(23, 127.99, 23),
+        WeightRate(24, 133.99, 24),
+        WeightRate(25, 138.99, 25),
     ],
 }
 
