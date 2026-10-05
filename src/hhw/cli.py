@@ -3,6 +3,7 @@ import json
 from datetime import date, timedelta
 from pathlib import Path
 
+from hhw.alert_policy import filter_alerts
 from hhw.cost_enrich import enrich_delivered_cost
 from hhw.fx import FxObservation
 from hhw.importers import import_marketplace_json
@@ -131,6 +132,7 @@ def main():
     parser.add_argument("--opportunities")
     parser.add_argument("--state-file", default="data/monitor-eu-state.json")
     parser.add_argument("--role", choices=["proxmox_compute", "storage"], default="proxmox_compute")
+    parser.add_argument("--alerts-only", action="store_true")
     args = parser.parse_args()
 
     if args.command == "fx-update":
@@ -153,6 +155,8 @@ def main():
 
     if args.command == "monitor-eu":
         events = run_monitor(candidates, args.state_file, args.role)
+        if args.alerts_only:
+            events = filter_alerts(events)
         print(json.dumps([event.__dict__ for event in events], ensure_ascii=False, indent=2))
 
     if errors:
