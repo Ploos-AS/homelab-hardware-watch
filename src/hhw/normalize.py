@@ -7,19 +7,19 @@ from hhw.enterprise import parse_enterprise_title
 from hhw.families import detect_runner_family
 from hhw.models import Candidate
 
-RAM_RE = re.compile(r"(?<!\\d)(\\d{1,3})\\s*GB\\s*(?:RAM|DDR\\d)?", re.I)
-STORAGE_RE = re.compile(r"(?<!\\d)(\\d{2,4})\\s*(GB|TB)\\s*(SSD|NVME|HDD)", re.I)
-INTEL_CPU_RE = re.compile(r"\\b(i[3579]-\\d{4,5}[A-Z]{0,2}|N(?:95|97|100|150|200|250|300|305|350|355))\\b", re.I)
-RYZEN_RE = re.compile(r"\\b(Ryzen\\s+(?:[3579]\\s+)?(?:PRO\\s+)?\\d{4,5}[A-Z]{0,2})\\b", re.I)
+RAM_RE = re.compile(r"(?<!\d)(\d{1,3})\s*GB\s*(?:RAM|DDR\d)?", re.I)
+STORAGE_RE = re.compile(r"(?<!\d)(\d{2,4})\s*(GB|TB)\s*(SSD|NVME|HDD)", re.I)
+INTEL_CPU_RE = re.compile(r"\b(i[3579]-\d{4,5}[A-Z]{0,2}|N(?:95|97|100|150|200|250|300|305|350|355))\b", re.I)
+RYZEN_RE = re.compile(r"\b(Ryzen\s+(?:[3579]\s+)?(?:PRO\s+)?\d{4,5}[A-Z]{0,2})\b", re.I)
 
 MISSING_COMPONENT_PATTERNS = {
-    "memory": re.compile(r"\\b(?:no|without)\\s+(?:ram|memory)\\b|\\b(?:ram|memory)\\s+not\\s+included\\b", re.I),
-    "hba": re.compile(r"\\b(?:no|without)\\s+hba\\b|\\bhba\\s+not\\s+included\\b", re.I),
-    "nic": re.compile(r"\\b(?:no|without)\\s+(?:nic|network\\s+card)\\b|\\b(?:nic|network\\s+card)\\s+not\\s+included\\b", re.I),
-    "rails": re.compile(r"\\b(?:no|without)\\s+rails?\\b|\\brails?\\s+not\\s+included\\b", re.I),
-    "caddies": re.compile(r"\\b(?:no|without)\\s+(?:caddies|trays)\\b|\\b(?:caddies|trays)\\s+not\\s+included\\b", re.I),
-    "psu": re.compile(r"\\b(?:no|without)\\s+(?:psu|power\\s+supply)\\b|\\b(?:psu|power\\s+supply)\\s+not\\s+included\\b", re.I),
-    "gpu": re.compile(r"\\b(?:no|without)\\s+(?:gpu|graphics\\s+card)\\b|\\b(?:gpu|graphics\\s+card)\\s+not\\s+included\\b", re.I),
+    "memory": re.compile(r"\b(?:no|without)\s+(?:ram|memory)\b|\b(?:ram|memory)\s+not\s+included\b", re.I),
+    "hba": re.compile(r"\b(?:no|without)\s+hba\b|\bhba\s+not\s+included\b", re.I),
+    "nic": re.compile(r"\b(?:no|without)\s+(?:nic|network\s+card)\b|\b(?:nic|network\s+card)\s+not\s+included\b", re.I),
+    "rails": re.compile(r"\b(?:no|without)\s+rails?\b|\brails?\s+not\s+included\b", re.I),
+    "caddies": re.compile(r"\b(?:no|without)\s+(?:caddies|trays)\b|\b(?:caddies|trays)\s+not\s+included\b", re.I),
+    "psu": re.compile(r"\b(?:no|without)\s+(?:psu|power\s+supply)\b|\b(?:psu|power\s+supply)\s+not\s+included\b", re.I),
+    "gpu": re.compile(r"\b(?:no|without)\s+(?:gpu|graphics\s+card)\b|\b(?:gpu|graphics\s+card)\s+not\s+included\b", re.I),
 }
 
 
