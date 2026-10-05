@@ -1,0 +1,48 @@
+version: 1
+
+runner_families:
+  generic_tiny:
+    role: linux_ci
+    examples:
+      - Lenovo ThinkCentre Tiny
+      - Dell OptiPlex Micro
+      - HP ProDesk Mini
+      - HP EliteDesk Mini
+
+  intel_nuc:
+    role: linux_ci
+    watch: opportunistic
+    generations:
+      preferred:
+        - NUC 11 Pro
+        - NUC 12 Pro
+        - NUC 13 Pro
+      legacy_watch:
+        - NUC 8
+        - NUC 10
+    notes:
+      - Used Intel-branded NUCs remain valid bargain candidates.
+      - Support for Intel NUC 7-13 transitioned to ASUS.
+      - Evaluate BIOS/security support status by exact model.
+
+  mac_mini_intel:
+    role: macos_ci
+    watch: opportunistic
+    preferred:
+      - Mac mini 2018
+    notes:
+      - Interesting primarily when native macOS CI adds value.
+      - 2018 model supports replaceable SO-DIMM memory up to 64 GB.
+      - macOS support lifecycle must be considered before purchase.
+
+  mac_mini_apple_silicon:
+    role: macos_ci
+    watch: high_interest
+    preferred:
+      - Mac mini M1 2020 16GB
+      - Mac mini M2 16GB
+      - Mac mini M4 16GB
+    notes:
+      - Unified memory is not upgradeable after purchase.
+      - Prefer 16 GB or more for runner duty.
+      - M1 2020 was available with 8 GB or 16 GB unified memory.
