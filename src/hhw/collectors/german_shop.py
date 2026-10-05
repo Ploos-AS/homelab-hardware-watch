@@ -11,6 +11,7 @@ from hhw.models import Candidate
 EUR = re.compile(r"€?\s*([\d.]+,\d{2})\s*€?", re.I)
 STOCK_EN = re.compile(r"(\d+)\s+(?:in stock|available)", re.I)
 STOCK_DE = re.compile(r"(\d+)\s+(?:Stück|sofort lieferbar)", re.I)
+WEIGHT = re.compile(r"(?:Weight|Gewicht)\s*:?\s*([\d.,]+)\s*kg\b", re.I)
 
 
 def eur(value: str) -> float:
