@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import replace
 from hhw.classify import classify_title
+from hhw.enterprise import parse_enterprise_title
 from hhw.families import detect_runner_family
 from hhw.models import Candidate
 
@@ -40,6 +41,10 @@ def normalize_title(candidate: Candidate) -> Candidate:
         hardware.setdefault("form_factor", "mac_mini" if family.startswith("mac_mini") else "tiny")
     elif any(x in title.lower() for x in ("tiny", "mini", "micro")):
         hardware.setdefault("form_factor", "tiny")
+
+    enterprise = parse_enterprise_title(title)
+    for key, value in enterprise.items():
+        hardware[key] = value
 
     detected = classify_title(title)
     if detected:
