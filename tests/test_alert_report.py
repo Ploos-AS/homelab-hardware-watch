@@ -22,3 +22,12 @@ def test_alert_report_shows_delivered_price_drop_context():
     )
     report = markdown_alerts([event])
     assert "6200 → 5400 NOK (-800, -12.9%)" in report
+
+
+def test_alert_report_shows_item_price_drop_with_currency():
+    event = MonitorEvent(
+        "id", "vendor", "https://example.invalid/item", "item_price_down",
+        "BUY", None, item_price=450, previous_item_price=500, currency="EUR",
+    )
+    report = markdown_alerts([event])
+    assert "500.00 → 450.00 EUR (-50.00, -10.0%)" in report
