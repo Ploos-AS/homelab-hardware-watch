@@ -13,6 +13,7 @@ from hhw.providers.norges_bank import fetch_daily
 from hhw.reference import N150_REFERENCE, price_vs_n150
 from hhw.registry import european_collectors, norwegian_collectors
 from hhw.report import markdown_report
+from hhw.vendor_evidence_store import load_vendor_evidence
 
 
 def enrich(candidates):
@@ -58,14 +59,14 @@ def load_fx(path):
     ]
 
 
-def collect_europe(fx_file="data/fx.json", observed_on=None):
+def collect_europe(fx_file="data/fx.json", evidence_file="data/vendor-evidence.json", observed_on=None):
     candidates, errors = _collect(european_collectors())
     candidates = enrich(candidates)
     fx = load_fx(fx_file)
+    evidence = load_vendor_evidence(evidence_file)
     day = observed_on or date.today()
     for candidate in candidates:
-        if candidate.item_price is not None:
-            enrich_delivered_cost(candidate, fx, day)
+        enrich_delivered_cost(candidate, fx, day, evidence)
     return candidates, errors
 
 
@@ -101,6 +102,7 @@ def main():
     parser.add_argument("command", choices=["collect-no", "collect-eu", "fx-update"])
     parser.add_argument("--marketplace", action="append", default=[])
     parser.add_argument("--fx-file", default="data/fx.json")
+    parser.add_argument("--evidence-file", default="data/vendor-evidence.json")
     parser.add_argument("--out")
     parser.add_argument("--report")
     parser.add_argument("--opportunities")
@@ -112,7 +114,7 @@ def main():
         return
 
     if args.command == "collect-eu":
-        candidates, errors = collect_europe(args.fx_file)
+        candidates, errors = collect_europe(args.fx_file, args.evidence_file)
         out = args.out or "data/current-eu.json"
         report = args.report or "reports/current-eu.md"
         opportunities = args.opportunities or "reports/current-eu-opportunities.md"
