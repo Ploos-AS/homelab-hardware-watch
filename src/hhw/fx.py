@@ -22,4 +22,11 @@ def rate_to_nok(currency: str, observations: list[FxObservation], on_date: date)
     ]
     if not matches:
         return None
-    return max(matches, key=lambda x: x.observed_on)
+    source_priority = {
+        "tolletaten": 100,
+        "norges_bank": 50,
+    }
+    return max(
+        matches,
+        key=lambda x: (x.observed_on, source_priority.get(x.source.lower(), 0)),
+    )

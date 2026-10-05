@@ -31,11 +31,13 @@ def test_servershop24_cheapest_carrier_for_22kg_server():
     assert cheapest_for_weight(22, SERVERSHOP24_NO_METHODS) == (122.99, "dhl_express")
 
 
-def test_servershop24_unverified_midrange_is_unknown():
-    from hhw.shipping import SERVERSHOP24_NO_METHODS, cheapest_for_weight
-    assert cheapest_for_weight(10, SERVERSHOP24_NO_METHODS) is None
+def test_weight_rate_lower_bound_is_exclusive():
+    from hhw.shipping import WeightRate
+    rates = [WeightRate(18, 99.0, 7.5)]
+    assert price_for_weight(7.5, rates) is None
+    assert price_for_weight(7.51, rates) == 99.0
 
 
-def test_servershop24_18kg_uses_verified_dhl_express_rate():
+def test_servershop24_high_weight_methods_do_not_match_low_weight():
     from hhw.shipping import SERVERSHOP24_NO_METHODS, cheapest_for_weight
-    assert cheapest_for_weight(18, SERVERSHOP24_NO_METHODS) == (103.99, "dhl_express")
+    assert cheapest_for_weight(7.5, SERVERSHOP24_NO_METHODS) is None
