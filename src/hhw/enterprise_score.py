@@ -76,6 +76,15 @@ def score_enterprise(candidate: Candidate, role: str) -> dict:
             price_points = 10
         else:
             price_points = 0
+            if price > 12000:
+                score -= 20
+                reasons.append("delivered_nok>12000_penalty")
+            elif price > 9000:
+                score -= 15
+                reasons.append("delivered_nok>9000_penalty")
+            elif price > 7000:
+                score -= 10
+                reasons.append("delivered_nok>7000_penalty")
         if price_confidence == "estimate" and price_points:
             price_points = max(0, price_points - 5)
             reasons.append("estimated_delivered_price_penalty")
