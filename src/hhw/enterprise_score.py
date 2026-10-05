@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from hhw.models import Candidate
+from hhw.decision_price import decision_price_signal
 
 
 def _price_signal(candidate: Candidate) -> tuple[float | None, str]:
@@ -66,7 +67,7 @@ def score_enterprise(candidate: Candidate, role: str) -> dict:
     else:
         raise ValueError(f"unknown enterprise role: {role}")
 
-    price, price_confidence = _price_signal(candidate)
+    price, price_confidence, ready = decision_price_signal(candidate)
     if price is not None:
         if price <= 3000:
             price_points = 30
@@ -104,6 +105,7 @@ def score_enterprise(candidate: Candidate, role: str) -> dict:
         "price_scored": price is not None,
         "price_nok": price,
         "price_confidence": price_confidence,
+        "ready_cost": ready,
     }
 
 
