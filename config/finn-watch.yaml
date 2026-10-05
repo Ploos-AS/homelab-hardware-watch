@@ -1,0 +1,97 @@
+version: 1
+source: finn_no
+mode: saved_search_ingest
+marketplace: torget
+
+search_groups:
+  x86_runner:
+    role: linux_ci
+    terms:
+      - ThinkCentre M720q
+      - ThinkCentre M920q
+      - ThinkCentre M920x
+      - ThinkCentre M90q
+      - P330 Tiny
+      - OptiPlex Micro
+      - EliteDesk Mini
+      - ProDesk Mini
+      - Intel NUC
+      - ASUS NUC
+
+  mac_runner:
+    role: macos_ci
+    terms:
+      - Mac mini M1
+      - Mac mini M2
+      - Mac mini M4
+      - Mac mini 2018
+    preferred_memory_gb_min: 16
+
+  arm_runner:
+    role: linux_arm64_ci
+    terms:
+      - RK3588
+      - ROCK 5B
+      - ROCK 5B+
+      - Orange Pi 5 Plus
+      - Raspberry Pi 5 16GB
+      - Raspberry Pi 5 8GB
+
+  proxmox_compute:
+    role: proxmox_compute
+    terms:
+      - Precision 5820
+      - Precision 7820
+      - HP Z4 G4
+      - HP Z6 G4
+      - ThinkStation P520
+      - ThinkStation P720
+      - PowerEdge R640
+      - PowerEdge R740
+
+  storage:
+    role: storage
+    terms:
+      - PowerEdge R730xd
+      - PowerEdge R740xd
+      - ProLiant DL380
+      - LSI HBA
+      - SAS HBA
+      - 10GbE NIC
+      - 25GbE NIC
+
+  networking:
+    role: managed_switch
+    terms:
+      - Aruba 2930F
+      - Juniper EX2300
+      - Juniper EX3400
+      - Arista 7050
+      - Dell S4048
+      - Mellanox SX
+      - Mellanox SN
+      - Brocade ICX
+
+  ai:
+    role: ai_server
+    terms:
+      - Precision 5820
+      - Precision 7820
+      - HP Z4 G4
+      - HP Z6 G4
+      - ThinkStation P520
+      - ThinkStation P720
+    required:
+      full_height_gpu: preferred
+      pcie_slots_min: 2
+
+ingest:
+  identity_priority:
+    - finn_code
+    - canonical_url
+  lifecycle:
+    statuses: [new, active, price_changed, gone, relisted]
+  dedupe:
+    title_normalization: true
+    seller_and_title_fallback: true
+  price_history: true

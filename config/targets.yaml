@@ -56,8 +56,12 @@ targets:
     description: Tiny/Mini/Micro low-power general compute
     desired_quantity: opportunistic
     reference:
-      class: intel_n100_n150
+      class: intel_n150_16gb
+      cpu: Intel N150
+      memory_gb: 16
       assumed_base_price_nok_ex_vat: 1600
+      assumed_base_price_nok_inc_vat: 2000
+      storage: unspecified
     preferred:
       memory_gb_min: 16
       nvme: true

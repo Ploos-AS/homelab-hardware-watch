@@ -1,0 +1,81 @@
+version: 1
+
+runner_families:
+  generic_tiny:
+    role: linux_ci
+    architecture: x86_64
+    examples:
+      - Lenovo ThinkCentre Tiny
+      - Dell OptiPlex Micro
+      - HP ProDesk Mini
+      - HP EliteDesk Mini
+
+  intel_nuc:
+    role: linux_ci
+    architecture: x86_64
+    watch: opportunistic
+    generations:
+      preferred: [NUC 11 Pro, NUC 12 Pro, NUC 13 Pro]
+      legacy_watch: [NUC 8, NUC 10]
+
+  arm64_rk3588:
+    role: linux_arm64_ci
+    architecture: arm64
+    watch: high_interest
+    preferred_memory_gb: [16, 32]
+    minimum_memory_gb: 8
+    capabilities:
+      nvme: preferred
+      ethernet_gbps_min: 1
+      ethernet_2_5g: preferred
+    examples:
+      - Radxa ROCK 5B
+      - Radxa ROCK 5B+
+      - Orange Pi 5 Plus
+    notes:
+      - Watch the RK3588 capability class, not only named boards.
+      - Prefer 16/32 GB for multi-runner use.
+      - Include board, PSU, cooling and NVMe accessories in delivered cost.
+
+  raspberry_pi_5:
+    role: linux_arm64_ci
+    architecture: arm64
+    watch: high_interest
+    preferred_memory_gb: [16]
+    minimum_memory_gb: 8
+    capabilities:
+      nvme: preferred
+      ethernet_gbps_min: 1
+    notes:
+      - Strong ecosystem and long production lifetime.
+      - Compare complete runner cost including PSU, cooling and NVMe adapter.
+
+  arm64_other:
+    role: linux_arm64_ci
+    architecture: arm64
+    watch: opportunistic
+    qualification:
+      memory_gb_min: 8
+      linux_support: required
+      ethernet_gbps_min: 1
+      persistent_fast_storage: preferred
+    notes:
+      - Allows unusually cheap future ARM64 SBCs or mini systems to qualify.
+
+  mac_mini_intel:
+    role: macos_ci
+    architecture: x86_64
+    watch: opportunistic
+    preferred: [Mac mini 2018]
+
+  mac_mini_apple_silicon:
+    role: macos_ci
+    architecture: arm64
+    watch: high_interest
+    preferred:
+      - Mac mini M1 2020 16GB
+      - Mac mini M2 16GB
+      - Mac mini M4 16GB
+    notes:
+      - Unified memory is not upgradeable after purchase.
+      - Prefer 16 GB or more for runner duty.

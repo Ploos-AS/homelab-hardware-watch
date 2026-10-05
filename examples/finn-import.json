@@ -1,0 +1,28 @@
+{
+  "listings": [
+    {
+      "source": "finn_no",
+      "source_id": "EXAMPLE-001",
+      "title": "Lenovo ThinkCentre M920q Tiny i5-9500T 16GB RAM 256GB SSD",
+      "url": "https://www.finn.no/example/EXAMPLE-001",
+      "price_nok": 1800,
+      "currency": "NOK",
+      "condition": "used",
+      "status": "active",
+      "categories": ["ci_runner", "tiny"],
+      "observed_at": "2026-10-05T00:00:00Z"
+    },
+    {
+      "source": "finn_no",
+      "source_id": "EXAMPLE-002",
+      "title": "Apple Mac mini M1 16GB 256GB",
+      "url": "https://www.finn.no/example/EXAMPLE-002",
+      "price_nok": 3500,
+      "currency": "NOK",
+      "condition": "used",
+      "status": "active",
+      "categories": ["ci_runner"],
+      "observed_at": "2026-10-05T00:00:00Z"
+    }
+  ]
+}

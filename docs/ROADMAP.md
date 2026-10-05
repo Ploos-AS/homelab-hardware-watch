@@ -9,14 +9,18 @@
 - [x] Initial sourcing policy
 - [x] Initial price-rule framework
 
-No automated collection is part of M0.
-
 ## M1 — Norway collectors
-- Norwegian vendor collectors
-- FINN/manual marketplace ingestion strategy
-- Raw snapshot storage
-- Normalization tests
-- Basic current-candidates report
+- [x] Norwegian vendor collector framework
+- [x] FINN/manual marketplace ingestion strategy
+- [x] Marketplace identity/lifecycle model
+- [x] Normalization tests
+- [x] N150/16 GB configuration parity
+- [x] x86, ARM64 and macOS runner families
+- [x] Current-candidates report
+- [x] Role-aware current-opportunities report
+- [x] CI test matrix
+
+Automated FINN acquisition is deferred until a stable/permitted acquisition mechanism is selected. Historical raw snapshots move to M5 rather than blocking M1.
 
 ## M2 — EU collectors
 - Netherlands
@@ -24,6 +28,7 @@ No automated collection is part of M0.
 - Baltics
 - Sweden/Denmark
 - Shipping capability metadata
+- ARM64/NUC/Mac mini coverage where available
 
 ## M3 — UK/import
 - UK collectors
@@ -37,9 +42,10 @@ No automated collection is part of M0.
 - Class-specific scoring
 - Missing-component cost model
 - Noise/power/expandability metadata
+- Architecture-coverage value
 
 ## M5 — Price history
-- Historical observations
+- Historical observations/raw snapshots
 - Rolling median/low
 - Bargain detection
 - Duplicate/listing identity handling
