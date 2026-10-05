@@ -22,7 +22,7 @@ def markdown_alerts(events: list[MonitorEvent]) -> str:
             delta = event.item_price - event.previous_item_price
             pct = (delta / event.previous_item_price * 100) if event.previous_item_price else None
             if pct is not None:
-                change = f"{event.previous_item_price:.2f} → {event.item_price:.2f} {delta:+.2f} ({pct:+.1f}%)"
+                change = f"{event.previous_item_price:.2f} → {event.item_price:.2f} {event.currency or ''} ({delta:+.2f}, {pct:+.1f}%)".replace("  ", " ")
         lines.append(
             f"| {event.action or '—'} | {event.event} | {event.vendor_id} | "
             f"{price} | {change} | [open]({event.url}) |"
