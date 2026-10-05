@@ -78,7 +78,12 @@ def enrich_delivered_cost(
     ))
     result["fx_observed_on"] = obs.observed_on.isoformat() if obs else None
     result["fx_source"] = obs.source if obs else None
-    result["fx_kind"] = "indicative_market_rate" if obs and obs.source != "tolletaten" else ("customs_rate" if obs else None)
+    fx_kind = "indicative_market_rate" if obs and obs.source != "tolletaten" else ("customs_rate" if obs else None)
+    result["fx_kind"] = fx_kind
+    if result.get("comparable"):
+        result["cost_status"] = "import_confirmed" if fx_kind == "customs_rate" else "estimate"
+        result["estimated_delivered_nok"] = result["delivered_nok"] if fx_kind == "indicative_market_rate" else None
+        result["import_confirmed_delivered_nok"] = result["delivered_nok"] if fx_kind == "customs_rate" else None
     result["vendor_evidence"] = evidence_sources
     metadata["delivered_cost"] = result
     return candidate
