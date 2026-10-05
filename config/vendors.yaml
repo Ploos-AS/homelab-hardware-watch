@@ -1,0 +1,25 @@
+version: 1
+
+vendors:
+  - {id: scandictech_no, name: ScandicTech, country: NO, url: "https://www.scandictech.no/", categories: [tiny, ci_runner, components, networking], priority: primary}
+  - {id: axentra_no, name: Axentra, country: NO, url: "https://axentra.no/", categories: [proxmox_compute, storage, networking, components], priority: primary}
+  - {id: planbit_no, name: Plan B IT, country: NO, url: "https://planbit.no/", categories: [proxmox_compute, storage, tiny, workstation], priority: primary}
+  - {id: itgarasjen_no, name: IT Garasjen, country: NO, url: "https://itgarasjen.no/", categories: [proxmox_compute, storage, workstation, tiny], priority: primary}
+  - {id: tekagain_no, name: TekAgain, country: NO, url: "https://tekagain.com/", categories: [proxmox_compute, storage, networking, components], priority: primary}
+  - {id: rebuildit_no, name: Rebuild IT, country: NO, url: "https://www.rebuildit.no/", categories: [tiny, workstation, components, storage], priority: secondary}
+  - {id: brukttech_no, name: BruktTech, country: NO, url: "https://www.brukttech.no/", categories: [tiny, ci_runner], priority: secondary}
+  - {id: serverpunt_nl, name: ServerPunt, country: NL, url: "https://serverpunt.com/en", categories: [proxmox_compute, storage, networking, components], priority: primary}
+  - {id: serverzaak_nl, name: ServerZaak, country: NL, url: "https://www.serverzaak.nl/", categories: [proxmox_compute, storage, networking], priority: primary}
+  - {id: secondhandserver_eu, name: SecondHandServer.eu, country: NL, url: "https://www.secondhandserver.eu/", categories: [proxmox_compute, storage, networking], priority: primary}
+  - {id: servershop24_de, name: ServerShop24, country: DE, url: "https://www.servershop24.de/", categories: [proxmox_compute, storage, networking, components], priority: primary}
+  - {id: serverando_de, name: Serverando, country: DE, url: "https://serverando.de/en/", categories: [proxmox_compute, storage, components], priority: primary}
+  - {id: gekko_de, name: GEKKO Computer, country: DE, url: "https://www.gekko-computer.de/en", categories: [proxmox_compute, storage, networking, workstation], priority: primary}
+  - {id: serverschmiede_de, name: Serverschmiede, country: DE, url: "https://www.serverschmiede.com/", categories: [proxmox_compute, storage, networking, components], priority: secondary}
+  - {id: renewedservers_ee, name: RenewedServers, country: EE, url: "https://www.renewedservers.com/", categories: [proxmox_compute, storage, networking], priority: primary}
+  - {id: reuseit_se, name: ReuseIT, country: SE, url: "https://reuseit.se/", categories: [proxmox_compute, storage, networking, workstation], priority: secondary}
+  - {id: avserver_dk, name: AVserver, country: DK, url: "https://www.avserver.dk/", categories: [proxmox_compute, storage, networking], priority: secondary, b2b: true}
+  - {id: uniplus_dk, name: Uniplus IT, country: DK, url: "https://uniplus.dk/", categories: [proxmox_compute, storage, networking], priority: secondary, b2b: true}
+  - {id: bargainhardware_uk, name: Bargain Hardware, country: GB, url: "https://www.bargainhardware.co.uk/", categories: [proxmox_compute, storage, networking, workstation, components], priority: primary}
+  - {id: etbtech_uk, name: ETB Technologies, country: GB, url: "https://www.etb-tech.com/", categories: [proxmox_compute, storage, networking, workstation, components], priority: primary}
+  - {id: techbuyer_uk, name: Techbuyer, country: GB, url: "https://www.techbuyer.com/", categories: [proxmox_compute, storage, networking, components], priority: secondary}
+  - {id: finn_no, name: FINN.no, country: NO, url: "https://www.finn.no/", categories: [proxmox_compute, storage, networking, workstation, tiny, ci_runner], priority: opportunistic, marketplace: true}
