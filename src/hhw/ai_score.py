@@ -56,8 +56,9 @@ def score_ai_host(candidate: Candidate) -> dict:
         score -= 20; reasons.append("gpu_power_unsuitable")
 
     price, confidence = _price_signal(candidate)
+    gpu_capable = vram is not None or slots >= 1 or hw.get("gpu_full_length_clearance") is True
     if price is not None:
-        if price <= 5000:
+        if price <= 5000 and gpu_capable:
             points = 20
         elif price <= 8000:
             points = 10
