@@ -5,6 +5,8 @@ from hhw.monitor_run import MonitorEvent
 
 def alert_worthy(event: MonitorEvent) -> bool:
     """Return True only for events worth surfacing to an operator."""
+    if event.event == "new_candidate":
+        return event.action in {"BUY", "WATCH"}
     if event.event == "became_buy":
         return True
     if event.event == "became_watch":
