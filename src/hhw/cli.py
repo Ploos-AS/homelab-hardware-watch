@@ -2,6 +2,8 @@ import argparse
 import json
 from pathlib import Path
 
+from hhw.normalize import normalize_all
+from hhw.reference import N150_REFERENCE, price_vs_n150
 from hhw.registry import norwegian_collectors
 from hhw.report import markdown_report
 
@@ -14,6 +16,10 @@ def collect_norway():
             candidates.extend(collector.collect())
         except Exception as exc:
             errors.append({"vendor_id": collector.vendor_id, "error": str(exc)})
+    candidates = normalize_all(candidates)
+    for candidate in candidates:
+        if candidate.currency == "NOK":
+            candidate.metadata["n150_price_comparison"] = price_vs_n150(candidate.item_price)
     return candidates, errors
 
 
@@ -28,6 +34,7 @@ def main():
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.report).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps({
+        "reference": {"n150": N150_REFERENCE},
         "candidates": [c.to_dict() for c in candidates],
         "errors": errors,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
