@@ -52,3 +52,26 @@ def test_import_confirmed_price_gets_full_price_points():
     assert result["price_confidence"] == "import_confirmed"
     assert "estimated_delivered_price_penalty" not in result["reasons"]
     assert result["score"] == 40
+
+
+def test_expensive_import_confirmed_server_gets_cost_penalty():
+    x = c(hardware={"memory_gb": 64})
+    x.metadata["delivered_cost"] = {
+        "cost_status": "import_confirmed",
+        "import_confirmed_delivered_nok": 11465,
+    }
+    result = score_enterprise(x, "proxmox_compute")
+    assert result["price_confidence"] == "import_confirmed"
+    assert "delivered_nok>9000_penalty" in result["reasons"]
+    assert result["score"] == 5  # 20 RAM - 15 delivered-cost penalty
+
+
+def test_very_expensive_server_gets_stronger_penalty():
+    x = c(hardware={"memory_gb": 64})
+    x.metadata["delivered_cost"] = {
+        "cost_status": "import_confirmed",
+        "import_confirmed_delivered_nok": 13000,
+    }
+    result = score_enterprise(x, "proxmox_compute")
+    assert "delivered_nok>12000_penalty" in result["reasons"]
+    assert result["score"] == 0
