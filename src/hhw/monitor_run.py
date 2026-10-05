@@ -19,6 +19,7 @@ class MonitorEvent:
     previous_delivered_nok: float | None = None
     item_price: float | None = None
     previous_item_price: float | None = None
+    currency: str | None = None
 
 
 def run_monitor(candidates: list[Candidate], state_file: str, role: str | None = None) -> list[MonitorEvent]:
@@ -44,6 +45,7 @@ def run_monitor(candidates: list[Candidate], state_file: str, role: str | None =
                 previous_delivered_nok=before.delivered_nok if before else None,
                 item_price=now.item_price,
                 previous_item_price=before.item_price if before else None,
+                currency=now.currency,
             ))
 
     save_state(state_file, current)
