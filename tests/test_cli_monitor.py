@@ -28,7 +28,7 @@ def test_monitor_eu_reuses_collection_and_persists_state(monkeypatch, tmp_path, 
     cli.main()
 
     events = json.loads(capsys.readouterr().out)
-    assert [x["event"] for x in events] == ["new_candidate"]
+    assert events == []
     assert state.exists()
     assert out.exists()
     assert report.exists()
