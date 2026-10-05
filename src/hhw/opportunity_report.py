@@ -7,7 +7,7 @@ DEFAULT_ROLES = [
     "linux_ci",
     "linux_arm64_ci",
     "macos_ci",
-    "ai_host",
+    "ai_server",
     "managed_switch",
     "ups",
 ]
