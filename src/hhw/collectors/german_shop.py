@@ -17,6 +17,20 @@ def eur(value: str) -> float:
     return float(value.replace(".", "").replace(",", "."))
 
 
+def parse_weight_kg(text: str) -> float | None:
+    match = WEIGHT.search(text)
+    if not match:
+        return None
+    return float(match.group(1).replace(",", "."))
+
+
+def fetch_product_weight(url: str) -> float | None:
+    r = requests.get(url, timeout=30, headers={"User-Agent": "homelab-hardware-watch/0.3"})
+    r.raise_for_status()
+    soup = BeautifulSoup(r.text, "html.parser")
+    return parse_weight_kg(" ".join(soup.stripped_strings))
+
+
 class GermanCatalogueCollector(Collector):
     def __init__(self, vendor_id: str, urls: list[str], configurable: bool = False):
         self.vendor_id = vendor_id
@@ -45,6 +59,14 @@ class GermanCatalogueCollector(Collector):
                     continue
                 price = eur(prices[-1])
                 stock = STOCK_EN.search(text) or STOCK_DE.search(text)
+                hardware = {}
+                if self.vendor_id == "servershop24_de":
+                    try:
+                        weight = fetch_product_weight(url)
+                        if weight is not None:
+                            hardware["weight_kg"] = weight
+                    except requests.RequestException:
+                        pass
                 out.append(Candidate(
                     vendor_id=self.vendor_id,
                     title=title.strip(),
@@ -54,7 +76,7 @@ class GermanCatalogueCollector(Collector):
                     stock_status="in_stock" if stock and int(stock.group(1)) > 0 else "unknown",
                     condition="refurbished",
                     categories=[],
-                    hardware={},
+                    hardware=hardware,
                     metadata={
                         "collector": "german_catalogue",
                         "country": "DE",
