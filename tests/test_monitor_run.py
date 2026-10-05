@@ -15,10 +15,9 @@ def c(price=500, delivered=None):
     return x
 
 
-def test_first_run_emits_new_and_second_is_silent(tmp_path):
+def test_first_run_bootstraps_without_new_candidate_event(tmp_path):
     state = tmp_path / "state.json"
-    first = run_monitor([c()], str(state))
-    assert [x.event for x in first] == ["new_candidate"]
+    assert run_monitor([c()], str(state)) == []
     assert run_monitor([c()], str(state)) == []
 
 
