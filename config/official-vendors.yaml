@@ -1,0 +1,34 @@
+version: 1
+
+vendors:
+  dell_no:
+    country: NO
+    source_type: official_vendor
+    currency: NOK
+    watch:
+      - deals
+      - desktops
+      - workstations
+      - micro
+    campaign_fields:
+      - normal_price_nok
+      - campaign_price_nok
+      - discount_pct
+      - coupon
+      - valid_until
+
+  lenovo_no:
+    country: NO
+    source_type: official_vendor
+    currency: NOK
+    watch:
+      - deals
+      - thinkcentre_tiny
+      - thinkstation
+      - workstations
+    campaign_fields:
+      - normal_price_nok
+      - campaign_price_nok
+      - discount_pct
+      - coupon
+      - valid_until
