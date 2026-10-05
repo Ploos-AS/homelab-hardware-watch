@@ -13,7 +13,7 @@ def price_for_weight(weight_kg: float | None, rates: list[WeightRate]) -> float 
     if weight_kg is None or weight_kg < 0:
         return None
     for rate in sorted(rates, key=lambda x: x.max_kg):
-        if rate.min_kg <= weight_kg <= rate.max_kg:
+        if rate.min_kg < weight_kg <= rate.max_kg:
             return rate.price
     return None
 
