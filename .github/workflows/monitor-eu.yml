@@ -1,0 +1,54 @@
+name: monitor-eu
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e .
+
+      - name: Restore monitor state
+        uses: actions/cache@v4
+        with:
+          path: .monitor
+          key: monitor-eu-state-${{ github.run_id }}
+          restore-keys: |
+            monitor-eu-state-
+
+      - name: Update market FX history
+        run: hhw fx-update --fx-file data/fx.json
+
+      - name: Collect, compare and report
+        run: |
+          mkdir -p .monitor artifacts
+          hhw monitor-eu \
+            --state-file .monitor/eu-state.json \
+            --out artifacts/current-eu.json \
+            --report artifacts/current-eu.md \
+            --opportunities artifacts/current-eu-opportunities.md \
+            | tee artifacts/events.json
+
+      - name: Upload monitor results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitor-eu-${{ github.run_number }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 30

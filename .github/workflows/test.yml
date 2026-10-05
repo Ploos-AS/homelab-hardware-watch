@@ -2,7 +2,7 @@ name: test
 
 on:
   push:
-    branches: [main, m3-delivered-cost]
+    branches: [main, 'm*-*']
   pull_request:
 
 permissions:
