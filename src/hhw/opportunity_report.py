@@ -1,4 +1,4 @@
-from hhw.enterprise_score import score_enterprise
+from hhw.enterprise_score import enterprise_action, score_enterprise
 from hhw.opportunities import rank
 
 
@@ -25,17 +25,20 @@ def markdown_opportunities(candidates, roles=None, limit=10):
     out = ["# Current opportunities", ""]
 
     for role in roles:
-        out.extend([f"## {role}", "", "| Score | Product | Price | Why |", "|---:|---|---:|---|"])
+        out.extend([f"## {role}", "", "| Action | Score | Product | Price | Confidence | Why |", "|---|---:|---|---:|---|---|"])
 
         if role in ENTERPRISE_ROLES:
             shown = _enterprise_rank(candidates, role)[:limit]
             if not shown:
-                out.append("| — | No qualified candidates | — | — |")
+                out.append("| — | — | No qualified candidates | — | — | — |")
             for result, candidate in shown:
                 why = "; ".join(result["reasons"])
                 out.append(
+                    f"| {enterprise_action(result)} | {result['score']:.0f} | [{candidate.title}]({candidate.url}) | "
+                    f"{result['price_nok']:.0f} NOK | {result['price_confidence']} | {why} |"
+                    if result["price_nok"] is not None else
                     f"| {result['score']:.0f} | [{candidate.title}]({candidate.url}) | "
-                    f"{_price(candidate)} | {why} |"
+                    f"{_price(candidate)} | unknown | {why} |"
                 )
         else:
             shown = [x for x in rank(candidates, role) if x.score > 0][:limit]
@@ -43,7 +46,7 @@ def markdown_opportunities(candidates, roles=None, limit=10):
                 out.append("| — | No qualified candidates | — | — |")
             for x in shown:
                 why = "; ".join(x.reasons)
-                out.append(f"| {x.score:.0f} | [{x.candidate.title}]({x.candidate.url}) | {_price(x.candidate)} | {why} |")
+                out.append(f"| — | {x.score:.0f} | [{x.candidate.title}]({x.candidate.url}) | {_price(x.candidate)} | — | {why} |")
 
         out.append("")
 

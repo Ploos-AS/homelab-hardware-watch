@@ -10,9 +10,11 @@ from hhw.normalize import normalize_all
 from hhw.opportunity_report import markdown_opportunities
 from hhw.parity import configuration_parity
 from hhw.providers.norges_bank import fetch_daily
+from hhw.providers.tolletaten import fetch_current as fetch_customs_fx
 from hhw.reference import N150_REFERENCE, price_vs_n150
 from hhw.registry import european_collectors, norwegian_collectors
 from hhw.report import markdown_report
+from hhw.vendor_evidence_store import load_vendor_evidence
 
 
 def enrich(candidates):
@@ -58,30 +60,51 @@ def load_fx(path):
     ]
 
 
-def collect_europe(fx_file="data/fx.json", observed_on=None):
+def collect_europe(fx_file="data/fx.json", evidence_file="data/vendor-evidence.json", observed_on=None):
     candidates, errors = _collect(european_collectors())
     candidates = enrich(candidates)
     fx = load_fx(fx_file)
+    evidence = load_vendor_evidence(evidence_file)
     day = observed_on or date.today()
+    currencies = sorted({c.currency for c in candidates if c.currency not in ("NOK", None)})
+    for currency in currencies:
+        try:
+            customs = fetch_customs_fx(currency, day)
+            if customs is not None:
+                fx.append(customs)
+        except Exception as exc:
+            errors.append({"vendor_id": "tolletaten_fx", "currency": currency, "error": str(exc)})
     for candidate in candidates:
-        if candidate.item_price is not None:
-            enrich_delivered_cost(candidate, fx, day)
+        enrich_delivered_cost(candidate, fx, day, evidence)
     return candidates, errors
+
+
+def save_fx(path, observations):
+    by_key = {
+        (x.base, x.quote, x.observed_on, x.source): x
+        for x in observations
+    }
+    ordered = sorted(
+        by_key.values(),
+        key=lambda x: (x.observed_on, x.base, x.quote, x.source),
+    )
+    payload = {"observations": [
+        {"base": x.base, "quote": x.quote, "rate": x.rate,
+         "observed_on": x.observed_on.isoformat(), "source": x.source}
+        for x in ordered
+    ]}
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return ordered
 
 
 def update_fx(path="data/fx.json", currency="EUR", days=14):
     end = date.today()
     start = end - timedelta(days=days)
-    observations = fetch_daily(currency, start, end)
-    payload = {"observations": [
-        {"base": x.base, "quote": x.quote, "rate": x.rate,
-         "observed_on": x.observed_on.isoformat(), "source": x.source}
-        for x in observations
-    ]}
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    return observations
+    existing = load_fx(path)
+    fetched = fetch_daily(currency, start, end)
+    return save_fx(path, existing + fetched)
 
 
 def write_outputs(candidates, errors, out, report, opportunities):
@@ -101,6 +124,7 @@ def main():
     parser.add_argument("command", choices=["collect-no", "collect-eu", "fx-update"])
     parser.add_argument("--marketplace", action="append", default=[])
     parser.add_argument("--fx-file", default="data/fx.json")
+    parser.add_argument("--evidence-file", default="data/vendor-evidence.json")
     parser.add_argument("--out")
     parser.add_argument("--report")
     parser.add_argument("--opportunities")
@@ -112,7 +136,7 @@ def main():
         return
 
     if args.command == "collect-eu":
-        candidates, errors = collect_europe(args.fx_file)
+        candidates, errors = collect_europe(args.fx_file, args.evidence_file)
         out = args.out or "data/current-eu.json"
         report = args.report or "reports/current-eu.md"
         opportunities = args.opportunities or "reports/current-eu-opportunities.md"

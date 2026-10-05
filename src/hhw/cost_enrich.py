@@ -3,20 +3,69 @@ from datetime import date
 
 from hhw.delivered_cost import DeliveredCostInput, calculate_delivered_nok
 from hhw.fx import FxObservation, rate_to_nok
+from hhw.vendor_evidence import VendorEvidence, latest_evidence
+from hhw.shipping import SERVERSHOP24_NO_METHODS, cheapest_for_weight
 
 
-def enrich_delivered_cost(candidate, fx: list[FxObservation], observed_on: date):
+def _evidence_values(evidence, vendor_id, observed_on):
+    values = {}
+    sources = []
+    for kind in ("norway_checkout", "shipping", "vat", "handling"):
+        obs = latest_evidence(evidence, vendor_id, kind, observed_on)
+        if obs:
+            values.update(obs.values)
+            sources.append({
+                "type": kind,
+                "observed_on": obs.observed_on.isoformat(),
+                "source": obs.source,
+            })
+    return values, sources
+
+
+def enrich_delivered_cost(
+    candidate,
+    fx: list[FxObservation],
+    observed_on: date,
+    evidence: list[VendorEvidence] | None = None,
+):
     metadata = candidate.metadata
+
+    if candidate.item_price is None:
+        metadata["delivered_cost"] = {
+            "comparable": False,
+            "reason": "item_price_unknown",
+            "delivered_nok": None,
+        }
+        return candidate
+
+    evidence_values, evidence_sources = _evidence_values(
+        evidence or [], candidate.vendor_id, observed_on
+    )
+
+    # Candidate-specific checkout/quote metadata always wins over reusable vendor evidence.
+    merged = {**evidence_values, **metadata}
+    if candidate.vendor_id == "servershop24_de" and "shipping_eur" not in merged:
+        weight = candidate.hardware.get("weight_kg") if candidate.hardware else None
+        choice = cheapest_for_weight(weight, SERVERSHOP24_NO_METHODS)
+        if choice is not None:
+            shipping, method = choice
+            merged["shipping_eur"] = shipping
+            evidence_sources.append({
+                "type": "shipping_weight_table",
+                "observed_on": "2026-10-05",
+                "source": "ServerShop24 Norway public shipping table",
+                "method": method,
+            })
     obs = rate_to_nok(candidate.currency, fx, observed_on)
 
-    shipping = metadata.get("shipping_eur") if candidate.currency == "EUR" else metadata.get("shipping_nok")
-    handling = metadata.get("handling_nok")
-    vat_rate = metadata.get("foreign_vat_rate")
-    vat_included = bool(metadata.get("foreign_vat_included", False))
-    vat_removed = metadata.get("foreign_vat_removed_for_export")
+    shipping = merged.get("shipping_eur") if candidate.currency == "EUR" else merged.get("shipping_nok")
+    handling = merged.get("handling_nok")
+    vat_rate = merged.get("foreign_vat_rate")
+    vat_included = bool(merged.get("foreign_vat_included", False))
+    vat_removed = merged.get("foreign_vat_removed_for_export")
 
     result = calculate_delivered_nok(DeliveredCostInput(
-        item_price=candidate.item_price or 0,
+        item_price=candidate.item_price,
         currency=candidate.currency,
         exchange_rate_to_nok=obs.rate if obs else None,
         foreign_vat_rate=vat_rate,
@@ -24,8 +73,17 @@ def enrich_delivered_cost(candidate, fx: list[FxObservation], observed_on: date)
         foreign_vat_removed_for_export=vat_removed,
         shipping=shipping,
         handling_nok=handling,
+        import_fees_nok=float(merged.get("import_fees_nok", 0.0)),
+        customs_duty_nok=float(merged.get("customs_duty_nok", 0.0)),
     ))
     result["fx_observed_on"] = obs.observed_on.isoformat() if obs else None
     result["fx_source"] = obs.source if obs else None
+    fx_kind = "indicative_market_rate" if obs and obs.source != "tolletaten" else ("customs_rate" if obs else None)
+    result["fx_kind"] = fx_kind
+    if result.get("comparable"):
+        result["cost_status"] = "import_confirmed" if fx_kind == "customs_rate" else "estimate"
+        result["estimated_delivered_nok"] = result["delivered_nok"] if fx_kind == "indicative_market_rate" else None
+        result["import_confirmed_delivered_nok"] = result["delivered_nok"] if fx_kind == "customs_rate" else None
+    result["vendor_evidence"] = evidence_sources
     metadata["delivered_cost"] = result
     return candidate

@@ -1,4 +1,4 @@
-from hhw.enterprise_score import score_enterprise
+from hhw.enterprise_score import enterprise_action, score_enterprise
 from hhw.models import Candidate
 
 
@@ -27,3 +27,65 @@ def test_nok_price_can_score():
     x = score_enterprise(c(currency="NOK", price=4500, hardware={"memory_gb": 64}), "proxmox_compute")
     assert x["price_scored"] is True
     assert "nok<=5000" in x["reasons"]
+
+
+def test_estimated_delivered_price_scores_with_penalty():
+    x = c(hardware={"memory_gb": 64})
+    x.metadata["delivered_cost"] = {
+        "cost_status": "estimate",
+        "estimated_delivered_nok": 4500,
+    }
+    result = score_enterprise(x, "proxmox_compute")
+    assert result["price_scored"] is True
+    assert result["price_confidence"] == "estimate"
+    assert "estimated_delivered_price_penalty" in result["reasons"]
+    assert result["score"] == 35  # 20 RAM + (20 price - 5 estimate penalty)
+
+
+def test_import_confirmed_price_gets_full_price_points():
+    x = c(hardware={"memory_gb": 64})
+    x.metadata["delivered_cost"] = {
+        "cost_status": "import_confirmed",
+        "import_confirmed_delivered_nok": 4500,
+    }
+    result = score_enterprise(x, "proxmox_compute")
+    assert result["price_confidence"] == "import_confirmed"
+    assert "estimated_delivered_price_penalty" not in result["reasons"]
+    assert result["score"] == 40
+
+
+def test_expensive_import_confirmed_server_gets_cost_penalty():
+    x = c(hardware={"memory_gb": 64})
+    x.metadata["delivered_cost"] = {
+        "cost_status": "import_confirmed",
+        "import_confirmed_delivered_nok": 11465,
+    }
+    result = score_enterprise(x, "proxmox_compute")
+    assert result["price_confidence"] == "import_confirmed"
+    assert "delivered_nok>9000_penalty" in result["reasons"]
+    assert result["score"] == 5  # 20 RAM - 15 delivered-cost penalty
+
+
+def test_very_expensive_server_gets_stronger_penalty():
+    x = c(hardware={"memory_gb": 64})
+    x.metadata["delivered_cost"] = {
+        "cost_status": "import_confirmed",
+        "import_confirmed_delivered_nok": 13000,
+    }
+    result = score_enterprise(x, "proxmox_compute")
+    assert "delivered_nok>12000_penalty" in result["reasons"]
+    assert result["score"] == 0
+
+
+def test_buy_requires_high_score_and_trusted_price():
+    assert enterprise_action({"score": 70, "price_confidence": "domestic"}) == "BUY"
+    assert enterprise_action({"score": 70, "price_confidence": "import_confirmed"}) == "BUY"
+
+
+def test_estimated_import_cannot_auto_buy():
+    assert enterprise_action({"score": 90, "price_confidence": "estimate"}) == "WATCH"
+
+
+def test_medium_score_is_watch_and_low_is_pass():
+    assert enterprise_action({"score": 30, "price_confidence": "domestic"}) == "WATCH"
+    assert enterprise_action({"score": 29, "price_confidence": "domestic"}) == "PASS"
