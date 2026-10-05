@@ -3,7 +3,7 @@ import re
 
 RAM_GB = re.compile(r"(?<!\d)(\d+(?:[.,]\d+)?)\s*(TB|GB)\s*(?:DDR\d|RAM|MEMORY)?", re.I)
 CPU_COUNT = re.compile(r"\b([12])\s*[x×]\s*(?:Intel\s+)?(?:Xeon|EPYC)", re.I)
-BAYS = re.compile(r"\b(\d{1,2})\s*[x×]\s*(2[.,]5|3[.,]5)["″']?\s*(?:SFF|LFF)?", re.I)
+BAYS = re.compile(r'\b(\d{1,2})\s*[x×]\s*(2[.,]5|3[.,]5)["″\']?\s*(?:SFF|LFF)?', re.I)
 BAYS_NAMED = re.compile(r"\b(\d{1,2})\s*(SFF|LFF)\b", re.I)
 NVME = re.compile(r"\bNVMe\b", re.I)
 CONTROLLER = re.compile(r"\b(HBA\d{3,4}[A-Z]?|H\d{3,4}P?|PERC\s+[A-Z]?\d{3,4}P?|LSI\s*\d{4}[-\w]*)\b", re.I)
