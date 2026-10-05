@@ -2,17 +2,7 @@ from __future__ import annotations
 
 from hhw.models import Candidate
 from hhw.decision_price import decision_price_signal
-
-
-def _price_signal(candidate: Candidate) -> tuple[float | None, str]:
-    cost = (candidate.metadata or {}).get("delivered_cost") or {}
-    if cost.get("cost_status") == "import_confirmed" and cost.get("import_confirmed_delivered_nok") is not None:
-        return float(cost["import_confirmed_delivered_nok"]), "import_confirmed"
-    if cost.get("cost_status") == "estimate" and cost.get("estimated_delivered_nok") is not None:
-        return float(cost["estimated_delivered_nok"]), "estimate"
-    if candidate.currency == "NOK" and candidate.item_price is not None:
-        return float(candidate.item_price), "domestic"
-    return None, "unknown"
+from hhw.price_signal import raw_price_signal as _price_signal
 
 
 def score_enterprise(candidate: Candidate, role: str) -> dict:
