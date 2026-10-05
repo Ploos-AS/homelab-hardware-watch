@@ -11,7 +11,13 @@ def test_buy_and_watch_transitions_alert():
     assert alert_worthy(e("became_watch", "WATCH"))
 
 
-def test_new_catalog_candidate_does_not_alert():
+def test_new_actionable_candidate_alerts_after_bootstrap():
+    assert alert_worthy(e("new_candidate", "BUY"))
+    assert alert_worthy(e("new_candidate", "WATCH"))
+
+
+def test_new_pass_candidate_stays_silent():
+    assert not alert_worthy(e("new_candidate", "PASS"))
     assert not alert_worthy(e("new_candidate"))
 
 
