@@ -7,6 +7,7 @@ from hhw.cost_enrich import enrich_delivered_cost
 from hhw.fx import FxObservation
 from hhw.importers import import_marketplace_json
 from hhw.normalize import normalize_all
+from hhw.monitor_run import run_monitor
 from hhw.opportunity_report import markdown_opportunities
 from hhw.parity import configuration_parity
 from hhw.providers.norges_bank import fetch_daily
@@ -121,13 +122,15 @@ def write_outputs(candidates, errors, out, report, opportunities):
 
 def main():
     parser = argparse.ArgumentParser(prog="hhw")
-    parser.add_argument("command", choices=["collect-no", "collect-eu", "fx-update"])
+    parser.add_argument("command", choices=["collect-no", "collect-eu", "monitor-eu", "fx-update"])
     parser.add_argument("--marketplace", action="append", default=[])
     parser.add_argument("--fx-file", default="data/fx.json")
     parser.add_argument("--evidence-file", default="data/vendor-evidence.json")
     parser.add_argument("--out")
     parser.add_argument("--report")
     parser.add_argument("--opportunities")
+    parser.add_argument("--state-file", default="data/monitor-eu-state.json")
+    parser.add_argument("--role", choices=["proxmox_compute", "storage"], default="proxmox_compute")
     args = parser.parse_args()
 
     if args.command == "fx-update":
@@ -135,7 +138,7 @@ def main():
         print(f"stored {len(observations)} FX observations in {args.fx_file}")
         return
 
-    if args.command == "collect-eu":
+    if args.command in {"collect-eu", "monitor-eu"}:
         candidates, errors = collect_europe(args.fx_file, args.evidence_file)
         out = args.out or "data/current-eu.json"
         report = args.report or "reports/current-eu.md"
@@ -147,6 +150,11 @@ def main():
         opportunities = args.opportunities or "reports/current-opportunities.md"
 
     write_outputs(candidates, errors, out, report, opportunities)
+
+    if args.command == "monitor-eu":
+        events = run_monitor(candidates, args.state_file, args.role)
+        print(json.dumps([event.__dict__ for event in events], ensure_ascii=False, indent=2))
+
     if errors:
         print(json.dumps(errors, ensure_ascii=False, indent=2))
 
