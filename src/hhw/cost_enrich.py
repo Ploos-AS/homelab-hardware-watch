@@ -73,9 +73,12 @@ def enrich_delivered_cost(
         foreign_vat_removed_for_export=vat_removed,
         shipping=shipping,
         handling_nok=handling,
+        import_fees_nok=float(merged.get("import_fees_nok", 0.0)),
+        customs_duty_nok=float(merged.get("customs_duty_nok", 0.0)),
     ))
     result["fx_observed_on"] = obs.observed_on.isoformat() if obs else None
     result["fx_source"] = obs.source if obs else None
+    result["fx_kind"] = "indicative_market_rate" if obs and obs.source != "tolletaten" else ("customs_rate" if obs else None)
     result["vendor_evidence"] = evidence_sources
     metadata["delivered_cost"] = result
     return candidate
