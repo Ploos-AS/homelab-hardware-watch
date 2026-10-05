@@ -12,6 +12,8 @@ class DeliveredCostInput:
     foreign_vat_removed_for_export: bool | None = None
     shipping: float | None = None
     handling_nok: float | None = None
+    import_fees_nok: float = 0.0
+    customs_duty_nok: float = 0.0
     norwegian_vat_rate: float = 0.25
 
 
@@ -39,14 +41,18 @@ def calculate_delivered_nok(x: DeliveredCostInput) -> dict:
 
     item_nok = item * rate
     shipping_nok = x.shipping * rate
-    norwegian_vat = (item_nok + shipping_nok) * x.norwegian_vat_rate
-    delivered = item_nok + shipping_nok + norwegian_vat + x.handling_nok
+    vat_basis_nok = item_nok + shipping_nok + x.customs_duty_nok + x.import_fees_nok
+    norwegian_vat = vat_basis_nok * x.norwegian_vat_rate
+    delivered = vat_basis_nok + norwegian_vat + x.handling_nok
 
     return {
         "comparable": True,
         "reason": None,
         "item_export_nok": round(item_nok, 2),
         "shipping_nok": round(shipping_nok, 2),
+        "vat_basis_nok": round(vat_basis_nok, 2),
+        "customs_duty_nok": round(x.customs_duty_nok, 2),
+        "import_fees_nok": round(x.import_fees_nok, 2),
         "norwegian_vat_nok": round(norwegian_vat, 2),
         "handling_nok": round(x.handling_nok, 2),
         "delivered_nok": round(delivered, 2),
