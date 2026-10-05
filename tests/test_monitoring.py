@@ -36,7 +36,9 @@ def test_item_price_drop_fallback_is_detected():
 
 def test_becoming_buy_is_explicit():
     old = snapshot(c(delivered=8000, status="import_confirmed"), "proxmox_compute")
-    new = snapshot(c(delivered=2500, status="import_confirmed"), "proxmox_compute")
+    buy = c(delivered=2500, status="import_confirmed")
+    buy.hardware.update({"cpu_threads": 32, "memory_gb": 128})
+    new = snapshot(buy, "proxmox_compute")
     events = changes(old, new)
     assert "action_changed" in events
     assert "became_buy" in events
