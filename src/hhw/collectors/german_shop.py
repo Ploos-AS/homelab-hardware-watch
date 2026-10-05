@@ -81,7 +81,8 @@ class GermanCatalogueCollector(Collector):
                     metadata={
                         "collector": "german_catalogue",
                         "country": "DE",
-                        "vat_basis": "local_vat_included",
+                        "vat_basis": "export_net" if self.vendor_id == "servershop24_de" else "local_vat_included",
+                        "foreign_vat_included": False if self.vendor_id == "servershop24_de" else True,
                         "configurable": self.configurable,
                         "configuration_complete": not self.configurable,
                         "stock_count": int(stock.group(1)) if stock else None,
