@@ -34,6 +34,11 @@ def european_collectors():
             configurable=False,
         ),
         GermanCatalogueCollector(
+            vendor_id="gekko_de",
+            urls=["https://www.gekko-computer.de/en/c/Server-en"],
+            configurable=False,
+        ),
+        GermanCatalogueCollector(
             vendor_id="serverando_de",
             urls=["https://serverando.de/en/", "https://serverando.de/en/server/rack-server/dell/"],
             configurable=True,
