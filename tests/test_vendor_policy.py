@@ -11,3 +11,10 @@ def test_rfq_vendor_requires_quote():
     p = policy_for("secondhandserver_eu")
     assert p.norway_shipping == "quote"
     assert p.shipping_price_source == "quote"
+
+
+def test_nl_storefronts_require_checkout_shipping():
+    assert policy_for("serverpunt_nl").shipping_price_source == "checkout"
+    assert policy_for("serverzaak_nl").shipping_price_source == "checkout"
+    assert policy_for("serverpunt_nl").export_vat_treatment == "unknown"
+    assert policy_for("serverzaak_nl").export_vat_treatment == "unknown"
