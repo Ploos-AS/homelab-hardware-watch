@@ -1,0 +1,16 @@
+version: 1
+base_comparison_currency: NOK
+
+policy:
+  historical_reproducibility: true
+  hardcoded_live_rate: false
+  use_latest_observation_not_after_candidate_date: true
+
+providers:
+  - id: norges_bank
+    status: planned
+    pairs:
+      - EUR/NOK
+    note: Preferred authoritative Norwegian reference source.
+
+observations: []
