@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hhw.enterprise_score import _price_signal
+from hhw.decision_price import decision_price_signal
 from hhw.models import Candidate
 from hhw.opportunities import ROLE_FAMILY_BONUS
 
@@ -46,7 +46,7 @@ def score_runner(candidate: Candidate, role: str) -> dict:
 
     # Configuration parity is preferred for domestic Tiny/CI comparisons because
     # it accounts for the working cost of bringing a candidate to 16 GB.
-    price, confidence = _price_signal(candidate)
+    price, confidence, ready = decision_price_signal(candidate)
     parity_price = parity.get("adjusted_price_nok")
     if confidence == "domestic" and parity.get("comparable") and parity_price is not None:
         price = float(parity_price)
@@ -78,6 +78,7 @@ def score_runner(candidate: Candidate, role: str) -> dict:
         "price_scored": price is not None,
         "price_nok": price,
         "price_confidence": confidence,
+        "ready_cost": ready,
         "runner_family": family,
     }
 
