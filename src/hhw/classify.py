@@ -6,6 +6,7 @@ NIC = re.compile(r"\b(XXV710|X710|X520|X540|X550|ConnectX[- ]?[3456]|10\s*GbE|25
 HBA = re.compile(r"\b(HBA|LSI\s*\d{4}|SAS\s*(?:HBA|controller))\b", re.I)
 SWITCH = re.compile(r"\b(Aruba\s+29\d\d|EX(?:2300|3300|3400|4300)|ICX(?:6610|7250|7450)|S4048|S4148|QFX5100|SX10\d\d|SN2\d\d\d)\b", re.I)
 WORKSTATION = re.compile(r"\b(Precision\s+(?:5820|7820)|Z[46]\s*G4|P(?:520|720))\b", re.I)
+UPS = re.compile(r"\b(?:APC\s+Smart-?UPS|Smart-?UPS|Eaton\s+(?:5PX|9PX)|Vertiv|Liebert)\b", re.I)
 
 
 def classify_title(title: str) -> list[str]:
@@ -20,4 +21,6 @@ def classify_title(title: str) -> list[str]:
         classes.extend(["managed_switch", "networking"])
     if WORKSTATION.search(title):
         classes.extend(["workstation", "proxmox_compute", "ai_server"])
+    if UPS.search(title):
+        classes.extend(["ups", "power_protection"])
     return list(dict.fromkeys(classes))
