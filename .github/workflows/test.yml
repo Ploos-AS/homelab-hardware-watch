@@ -2,7 +2,7 @@ name: test
 
 on:
   push:
-    branches: [main, m1-norway-collectors, m2-europe-collectors]
+    branches: [main, m3-delivered-cost]
   pull_request:
 
 permissions:
