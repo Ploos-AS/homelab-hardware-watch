@@ -12,6 +12,7 @@ The project collects hardware candidates from Norwegian and European sources, no
 4. Storage servers (primary + backup)
 5. Managed switches
 6. Tiny / Mini / Micro systems
+7. UPS / homelab power protection
 
 N100/N150-class systems are a reference point for low-power compute, not a mandatory platform.
 
@@ -42,8 +43,8 @@ Imported candidates fail closed when required cost inputs are unknown. Indicativ
 
 ## Status
 
-**M3 complete.**
+**M3 complete; M4 active.**
 
 M0 foundation and M1 Norway are complete. M2 has strong Netherlands/Germany coverage but Nordic/Baltic collector coverage remains incomplete. M3 delivered-cost/import intelligence is merged, including dated FX/evidence, Norway VAT/import modelling, ServerShop24 weight-based shipping, confidence-aware scoring integration and acceptance coverage.
 
-Parts of M4 classification/scoring and M6 monitoring/alerts already exist. The next development milestone is M4 decision-quality scoring; see `docs/ROADMAP.md`.
+M4 now has unified decision scoring for Proxmox/storage, x86 and ARM64 CI runners, macOS CI, AI servers, managed switches and UPS. Opportunity reports and monitoring use the same BUY/WATCH/PASS decision path. Remaining M4 work focuses on missing-component costs, richer power/noise/expandability evidence and architecture-coverage value; see `docs/ROADMAP.md`.
