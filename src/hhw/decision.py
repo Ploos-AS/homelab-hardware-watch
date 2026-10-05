@@ -10,7 +10,7 @@ from hhw.ups_score import score_ups, ups_action
 
 
 ENTERPRISE_ROLES = {"proxmox_compute", "storage"}
-SPECIAL_ROLES = {"ai_host", "managed_switch", "ups"}
+SPECIAL_ROLES = {"ai_server", "ai_host", "managed_switch", "ups"}
 VALID_ROLES = ENTERPRISE_ROLES | RUNNER_ROLES | SPECIAL_ROLES
 
 
@@ -22,8 +22,10 @@ def decide(candidate: Candidate, role: str) -> dict:
     elif role in RUNNER_ROLES:
         result = score_runner(candidate, role)
         action = runner_action(result)
-    elif role == "ai_host":
+    elif role in {"ai_server", "ai_host"}:
         result = score_ai_host(candidate)
+        if role == "ai_server":
+            result = {**result, "role": "ai_server"}
         action = ai_host_action(result)
     elif role == "managed_switch":
         result = score_managed_switch(candidate)
