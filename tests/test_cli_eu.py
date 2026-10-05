@@ -48,3 +48,18 @@ def test_collect_europe_passes_vendor_evidence(monkeypatch, tmp_path):
     candidates, errors = cli.collect_europe(fx, evidence, date(2026, 10, 5))
     assert errors == []
     assert candidates[0].metadata["delivered_cost"]["delivered_nok"] == 1600.0
+
+
+def test_save_fx_preserves_history_and_deduplicates(tmp_path):
+    from hhw.cli import load_fx, save_fx
+    from hhw.fx import FxObservation
+
+    p = tmp_path / "fx.json"
+    old = FxObservation("EUR", "NOK", 11.0, date(2026, 9, 1), "norges_bank")
+    duplicate_old = FxObservation("EUR", "NOK", 11.1, date(2026, 9, 1), "norges_bank")
+    new = FxObservation("EUR", "NOK", 11.5, date(2026, 10, 1), "norges_bank")
+
+    saved = save_fx(p, [old, duplicate_old, new])
+    assert len(saved) == 2
+    assert saved[0].rate == 11.1
+    assert [x.observed_on for x in load_fx(p)] == [date(2026, 9, 1), date(2026, 10, 1)]
