@@ -1,0 +1,27 @@
+version: 1
+
+country: Norway
+currency: NOK
+
+tax:
+  vat_rate: 0.25
+  apply_vat_to:
+    - item_price
+    - shipping
+
+import:
+  customs_duty_default_rate: 0.0
+  handling_fee_nok:
+    mode: unknown
+    default: 0
+
+pricing:
+  canonical_metric: delivered_nok
+  include:
+    - item_price
+    - required_configuration_cost
+    - shipping
+    - vat
+    - import_handling
+  exclude_by_default:
+    - optional_upgrades
