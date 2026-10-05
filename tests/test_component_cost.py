@@ -78,3 +78,35 @@ def test_unknown_component_type_is_rejected():
 def test_negative_cost_is_rejected():
     with pytest.raises(ValueError, match="component cost must be >= 0"):
         MissingComponent.from_dict({"component": "psu", "cost_nok": -1})
+
+
+def test_required_parts_change_enterprise_decision_price():
+    from hhw.enterprise_score import score_enterprise
+
+    x = Candidate(
+        "x", "server", "https://example.invalid/server",
+        currency="NOK", item_price=2500,
+        hardware={"memory_gb": 64, "cpu_count": 2},
+        metadata={"missing_components": [
+            {"component": "hba", "cost_nok": 1000},
+            {"component": "rails", "cost_nok": 1500},
+        ]},
+    )
+    result = score_enterprise(x, "proxmox_compute")
+    assert result["price_nok"] == 5000
+    assert result["ready_cost"]["component_cost_nok"] == 2500
+
+
+def test_unknown_required_part_blocks_price_scoring():
+    from hhw.enterprise_score import score_enterprise
+
+    x = Candidate(
+        "x", "server", "https://example.invalid/server",
+        currency="NOK", item_price=2500,
+        hardware={"memory_gb": 128, "cpu_count": 2},
+        metadata={"missing_components": [{"component": "rails"}]},
+    )
+    result = score_enterprise(x, "proxmox_compute")
+    assert result["price_scored"] is False
+    assert result["price_nok"] is None
+    assert result["ready_cost"]["reason"] == "required_component_cost_unknown"
