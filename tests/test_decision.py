@@ -16,7 +16,7 @@ def test_dispatcher_exposes_all_m4_roles():
     assert {
         "proxmox_compute", "storage",
         "linux_ci", "linux_arm64_ci", "macos_ci",
-        "ai_host", "managed_switch", "ups",
+        "ai_server", "ai_host", "managed_switch", "ups",
     } <= VALID_ROLES
 
 
@@ -56,3 +56,9 @@ def test_dispatches_ai_switch_and_ups():
 def test_unknown_role_fails_closed():
     with pytest.raises(ValueError, match="unknown decision role"):
         decide(c(), "gaming_pc")
+
+
+def test_ai_server_is_canonical_public_role():
+    result = decide(c(5000, {"gpu_vram_gb": 24}), "ai_server")
+    assert result["role"] == "ai_server"
+    assert result["action"] == "BUY"
