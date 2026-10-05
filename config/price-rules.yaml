@@ -1,0 +1,29 @@
+version: 1
+
+reference_classes:
+  n100_n150:
+    base_price_nok_ex_vat: 1600
+    purpose:
+      - ci_runner
+      - tiny
+
+rules:
+  use_delivered_price: true
+  normalize_currency_to: NOK
+  compare_like_for_like: true
+  require_configuration_completeness: true
+
+bargain_levels:
+  watch:
+    description: Worth tracking
+  good:
+    description: Competitive versus current alternatives
+  bargain:
+    description: Materially below normal market level
+  exceptional:
+    description: Opportunistic buy candidate
+
+notes:
+  - Numeric bargain thresholds will be refined after price history exists.
+  - Do not infer bargain status from sticker price alone.
+  - Missing RAM, CPU, caddies, rails, HBA, NIC or PSU must be costed where required.
