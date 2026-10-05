@@ -16,25 +16,20 @@ Intel's published N150 specifications:
 
 ## Working price baseline
 
-Project assumption:
+The project's current price reference is specifically a **complete N150 system with 16 GB RAM**:
 
+- N150 CPU
+- 16 GB RAM
 - NOK 1,600 before Norwegian VAT
 - NOK 2,000 including 25% VAT
 - shipping/import handling is additional where applicable
 
-The price baseline is intentionally configuration-independent in M1. Later milestones will compare complete delivered configurations and performance.
+Storage capacity is not yet fixed in the M1 reference and must not be assumed.
+
+This distinction is important: a barebone, 8 GB N150 system or an N150 board alone must **not** be compared directly against this NOK 1,600 ex-VAT baseline as an equivalent configuration.
 
 ## Interpretation
 
-A used Tiny/Mini/Micro machine below NOK 2,000 is not automatically a better buy. It must also be evaluated for:
+A used Tiny/Mini/Micro machine below NOK 2,000 is not automatically a better buy. Configuration parity matters. In particular, an 8 GB used Tiny should not receive the same configuration comparison as the 16 GB N150 reference without accounting for the RAM difference.
 
-- CPU throughput
-- RAM capacity and upgradeability
-- storage
-- networking
-- idle/load power
-- warranty
-- expansion
-- delivered cost
-
-M4 will add class-specific scoring.
+Later scoring will also evaluate CPU throughput, RAM capacity/upgradeability, storage, networking, idle/load power, warranty, expansion and delivered cost.
