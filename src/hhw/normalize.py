@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import replace
+from hhw.families import detect_runner_family
 from hhw.models import Candidate
 
 RAM_RE = re.compile(r"(?<!\d)(\d{1,3})\s*GB\s*(?:RAM|DDR\d)?", re.I)
@@ -13,6 +14,7 @@ RYZEN_RE = re.compile(r"\b(Ryzen\s+(?:[3579]\s+)?(?:PRO\s+)?\d{4,5}[A-Z]{0,2})\b
 def normalize_title(candidate: Candidate) -> Candidate:
     title = candidate.title
     hardware = dict(candidate.hardware)
+    metadata = dict(candidate.metadata)
 
     cpu = INTEL_CPU_RE.search(title) or RYZEN_RE.search(title)
     if cpu:
@@ -31,11 +33,17 @@ def normalize_title(candidate: Candidate) -> Candidate:
             "type": storage.group(3).upper(),
         }]
 
-    lower = title.lower()
-    if any(x in lower for x in ("tiny", "mini", "micro")):
+    family = detect_runner_family(title)
+    if family:
+        metadata["runner_family"] = family
+        if family.startswith("mac_mini"):
+            hardware.setdefault("form_factor", "mac_mini")
+        else:
+            hardware.setdefault("form_factor", "tiny")
+    elif any(x in title.lower() for x in ("tiny", "mini", "micro")):
         hardware.setdefault("form_factor", "tiny")
 
-    return replace(candidate, hardware=hardware)
+    return replace(candidate, hardware=hardware, metadata=metadata)
 
 
 def normalize_all(candidates: list[Candidate]) -> list[Candidate]:
