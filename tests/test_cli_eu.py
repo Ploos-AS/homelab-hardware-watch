@@ -17,6 +17,7 @@ def test_load_fx(tmp_path):
 
 def test_collect_europe_passes_vendor_evidence(monkeypatch, tmp_path):
     from hhw import cli
+    monkeypatch.setattr(cli, "fetch_customs_fx", lambda currency, day: None)
     from hhw.models import Candidate
 
     fx = tmp_path / "fx.json"
