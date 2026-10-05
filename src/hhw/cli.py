@@ -70,19 +70,32 @@ def collect_europe(fx_file="data/fx.json", evidence_file="data/vendor-evidence.j
     return candidates, errors
 
 
-def update_fx(path="data/fx.json", currency="EUR", days=14):
-    end = date.today()
-    start = end - timedelta(days=days)
-    observations = fetch_daily(currency, start, end)
+def save_fx(path, observations):
+    by_key = {
+        (x.base, x.quote, x.observed_on, x.source): x
+        for x in observations
+    }
+    ordered = sorted(
+        by_key.values(),
+        key=lambda x: (x.observed_on, x.base, x.quote, x.source),
+    )
     payload = {"observations": [
         {"base": x.base, "quote": x.quote, "rate": x.rate,
          "observed_on": x.observed_on.isoformat(), "source": x.source}
-        for x in observations
+        for x in ordered
     ]}
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    return observations
+    return ordered
+
+
+def update_fx(path="data/fx.json", currency="EUR", days=14):
+    end = date.today()
+    start = end - timedelta(days=days)
+    existing = load_fx(path)
+    fetched = fetch_daily(currency, start, end)
+    return save_fx(path, existing + fetched)
 
 
 def write_outputs(candidates, errors, out, report, opportunities):
