@@ -29,3 +29,13 @@ def test_servershop24_cheapest_carrier_for_18kg_server():
 def test_servershop24_cheapest_carrier_for_22kg_server():
     from hhw.shipping import SERVERSHOP24_NO_METHODS, cheapest_for_weight
     assert cheapest_for_weight(22, SERVERSHOP24_NO_METHODS) == (122.99, "dhl_express")
+
+
+def test_servershop24_unverified_midrange_is_unknown():
+    from hhw.shipping import SERVERSHOP24_NO_METHODS, cheapest_for_weight
+    assert cheapest_for_weight(10, SERVERSHOP24_NO_METHODS) is None
+
+
+def test_servershop24_18kg_uses_verified_dhl_express_rate():
+    from hhw.shipping import SERVERSHOP24_NO_METHODS, cheapest_for_weight
+    assert cheapest_for_weight(18, SERVERSHOP24_NO_METHODS) == (103.99, "dhl_express")
