@@ -44,7 +44,7 @@ Automated FINN acquisition remains deferred until a stable/permitted acquisition
 - [x] End-to-end ServerShop24 R640 acceptance coverage
 - [ ] UK automated collectors (coverage backlog; not an M3 blocker)
 
-## M4 — Decision-quality classification and scoring — active
+## M4 — Decision-quality classification and scoring — feature-complete / freeze
 Already present:
 - [x] Initial product-class matching
 - [x] Initial Proxmox/storage enterprise scoring
@@ -60,9 +60,15 @@ Remaining:
 - [x] Unified BUY/WATCH/PASS dispatcher
 - [x] Unified opportunity-report integration
 - [x] Unified monitor/action-transition integration
-- [ ] Generalized missing-component cost model beyond UPS batteries
+- [x] Generalized missing-component cost model beyond UPS batteries
+- [x] Dated component-cost evidence with model/component compatibility keys
+- [x] Fail-closed ready-cost scoring when required component cost is unknown
+- [x] Explicit x86/ARM64/macOS runner architecture boundaries
+- [x] AI price-value gate requires GPU capability
+
+Deferred beyond M4:
 - [ ] Richer noise/power/expandability metadata and evidence
-- [ ] Architecture-coverage value
+- [ ] Broader architecture-coverage value
 
 ## M5 — Price history
 - [ ] Historical observations/raw snapshots
