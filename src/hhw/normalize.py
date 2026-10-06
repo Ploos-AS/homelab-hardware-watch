@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import replace
 from hhw.classify import classify_title
+from hhw.component_keys import component_evidence_key
 from hhw.enterprise import parse_enterprise_title
 from hhw.families import detect_runner_family
 from hhw.models import Candidate
@@ -60,12 +61,16 @@ def normalize_title(candidate: Candidate) -> Candidate:
     existing_missing = {str(x.get("component", "")).lower() for x in missing}
     for component, pattern in MISSING_COMPONENT_PATTERNS.items():
         if component not in existing_missing and pattern.search(title):
-            missing.append({
+            value = {
                 "component": component,
                 "required": True,
                 "cost_nok": None,
                 "note": "explicitly absent in listing title",
-            })
+            }
+            evidence_key = component_evidence_key(title, component)
+            if evidence_key is not None:
+                value["evidence_key"] = evidence_key
+            missing.append(value)
     if missing:
         metadata["missing_components"] = missing
 
