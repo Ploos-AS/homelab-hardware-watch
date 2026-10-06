@@ -51,3 +51,16 @@ def test_existing_component_cost_evidence_is_preserved():
     )
     normalized = normalize_title(item)
     assert normalized.metadata["missing_components"] == item.metadata["missing_components"]
+
+
+def test_explicit_missing_components_get_model_specific_evidence_keys():
+    item = normalize_title(c("Dell R730 no HBA, rails not included"))
+    missing = {x["component"]: x for x in item.metadata["missing_components"]}
+    assert missing["hba"]["evidence_key"] == "dell_r730_hba"
+    assert missing["rails"]["evidence_key"] == "dell_r730_rails"
+
+
+def test_ambiguous_server_missing_component_gets_no_evidence_key():
+    item = normalize_title(c("Dell server without rails"))
+    missing = item.metadata["missing_components"][0]
+    assert "evidence_key" not in missing
