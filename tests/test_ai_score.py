@@ -76,3 +76,9 @@ def test_expensive_gpu_less_host_is_penalized():
     }))
     assert "expensive_gpu_less_host" in result["reasons"]
     assert ai_host_action(result) == "PASS"
+
+
+def test_cheap_gpu_incapable_host_gets_no_price_bonus():
+    result = score_ai_host(c(7000, {"memory_gb": 64}))
+    assert result["score"] == 10
+    assert ai_host_action(result) == "PASS"
