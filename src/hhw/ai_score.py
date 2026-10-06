@@ -60,7 +60,7 @@ def score_ai_host(candidate: Candidate) -> dict:
     if price is not None:
         if price <= 5000 and gpu_capable:
             points = 20
-        elif price <= 8000:
+        elif price <= 8000 and gpu_capable:
             points = 10
         elif price > 15000 and vram is None:
             points = -20
