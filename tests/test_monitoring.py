@@ -42,3 +42,54 @@ def test_becoming_buy_is_explicit():
     events = changes(old, new)
     assert "action_changed" in events
     assert "became_buy" in events
+
+
+def test_runner_watch_to_buy_transition_is_explicit():
+    old = Candidate(
+        "vendor", "Tiny", "https://example.invalid/tiny", currency="NOK",
+        item_price=1900, hardware={"memory_gb": 16},
+        metadata={
+            "runner_family": "generic_tiny",
+            "configuration_parity": {"comparable": True, "adjusted_price_nok": 1900},
+        },
+    )
+    new = Candidate(
+        "vendor", "Tiny", "https://example.invalid/tiny", currency="NOK",
+        item_price=1400, hardware={"memory_gb": 16},
+        metadata={
+            "runner_family": "generic_tiny",
+            "configuration_parity": {"comparable": True, "adjusted_price_nok": 1400},
+        },
+    )
+    before = snapshot(old, "linux_ci")
+    after = snapshot(new, "linux_ci")
+    assert before.action == "WATCH"
+    assert after.action == "BUY"
+    assert "became_buy" in changes(before, after)
+
+
+def test_switch_decision_is_available_to_monitor():
+    switch = Candidate(
+        "vendor", "Switch", "https://example.invalid/switch", currency="NOK",
+        item_price=1500,
+        hardware={
+            "managed": True, "vlan": True, "lacp": True,
+            "uplink_max_gbps": 25, "ports_25gbe": 4,
+        },
+    )
+    assert snapshot(switch, "managed_switch").action == "BUY"
+
+
+def test_ups_decision_is_available_to_monitor():
+    ups = Candidate(
+        "vendor", "UPS", "https://example.invalid/ups", currency="NOK",
+        item_price=1000,
+        hardware={
+            "output_watts": 1500,
+            "ups_topology": "line_interactive",
+            "replaceable_battery": True,
+            "management_interfaces": ["usb", "snmp"],
+            "nut_compatible": True,
+        },
+    )
+    assert snapshot(ups, "ups").action == "BUY"

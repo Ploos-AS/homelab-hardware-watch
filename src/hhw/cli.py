@@ -6,6 +6,9 @@ from pathlib import Path
 from hhw.alert_policy import filter_alerts
 from hhw.alert_report import markdown_alerts
 from hhw.cost_enrich import enrich_delivered_cost
+from hhw.component_enrich import enrich_component_costs
+from hhw.component_evidence_store import load_component_evidence
+from hhw.decision import VALID_ROLES
 from hhw.fx import FxObservation
 from hhw.importers import import_marketplace_json
 from hhw.normalize import normalize_all
@@ -42,14 +45,18 @@ def _collect(collectors):
     return candidates, errors
 
 
-def collect_norway(marketplace_files=None):
+def collect_norway(marketplace_files=None, component_evidence_file="data/component-evidence.json", observed_on=None):
     candidates, errors = _collect(norwegian_collectors())
     for path in marketplace_files or []:
         try:
             candidates.extend(import_marketplace_json(path))
         except Exception as exc:
             errors.append({"vendor_id": "marketplace_import", "file": path, "error": str(exc)})
-    return enrich(candidates), errors
+    candidates = enrich(candidates)
+    component_evidence = load_component_evidence(component_evidence_file)
+    day = observed_on or date.today()
+    candidates = [enrich_component_costs(candidate, component_evidence, day) for candidate in candidates]
+    return candidates, errors
 
 
 def load_fx(path):
@@ -63,11 +70,12 @@ def load_fx(path):
     ]
 
 
-def collect_europe(fx_file="data/fx.json", evidence_file="data/vendor-evidence.json", observed_on=None):
+def collect_europe(fx_file="data/fx.json", evidence_file="data/vendor-evidence.json", observed_on=None, component_evidence_file="data/component-evidence.json"):
     candidates, errors = _collect(european_collectors())
     candidates = enrich(candidates)
     fx = load_fx(fx_file)
     evidence = load_vendor_evidence(evidence_file)
+    component_evidence = load_component_evidence(component_evidence_file)
     day = observed_on or date.today()
     currencies = sorted({c.currency for c in candidates if c.currency not in ("NOK", None)})
     for currency in currencies:
@@ -79,6 +87,7 @@ def collect_europe(fx_file="data/fx.json", evidence_file="data/vendor-evidence.j
             errors.append({"vendor_id": "tolletaten_fx", "currency": currency, "error": str(exc)})
     for candidate in candidates:
         enrich_delivered_cost(candidate, fx, day, evidence)
+        enrich_component_costs(candidate, component_evidence, day)
     return candidates, errors
 
 
@@ -128,11 +137,12 @@ def main():
     parser.add_argument("--marketplace", action="append", default=[])
     parser.add_argument("--fx-file", default="data/fx.json")
     parser.add_argument("--evidence-file", default="data/vendor-evidence.json")
+    parser.add_argument("--component-evidence-file", default="data/component-evidence.json")
     parser.add_argument("--out")
     parser.add_argument("--report")
     parser.add_argument("--opportunities")
     parser.add_argument("--state-file", default="data/monitor-eu-state.json")
-    parser.add_argument("--role", choices=["proxmox_compute", "storage"], default="proxmox_compute")
+    parser.add_argument("--role", choices=sorted(VALID_ROLES), default="proxmox_compute")
     parser.add_argument("--alerts-only", action="store_true")
     parser.add_argument("--alerts-report")
     args = parser.parse_args()
@@ -143,12 +153,19 @@ def main():
         return
 
     if args.command in {"collect-eu", "monitor-eu"}:
-        candidates, errors = collect_europe(args.fx_file, args.evidence_file)
+        if args.component_evidence_file == "data/component-evidence.json":
+            candidates, errors = collect_europe(args.fx_file, args.evidence_file)
+        else:
+            candidates, errors = collect_europe(
+                args.fx_file,
+                args.evidence_file,
+                component_evidence_file=args.component_evidence_file,
+            )
         out = args.out or "data/current-eu.json"
         report = args.report or "reports/current-eu.md"
         opportunities = args.opportunities or "reports/current-eu-opportunities.md"
     else:
-        candidates, errors = collect_norway(args.marketplace)
+        candidates, errors = collect_norway(args.marketplace, args.component_evidence_file)
         out = args.out or "data/current-no.json"
         report = args.report or "reports/current-no.md"
         opportunities = args.opportunities or "reports/current-opportunities.md"

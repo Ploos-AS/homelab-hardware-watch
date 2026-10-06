@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
 
-from hhw.enterprise_score import enterprise_action, score_enterprise
+from hhw.decision import VALID_ROLES, decide
 from hhw.models import Candidate
 
 
@@ -35,8 +35,8 @@ def snapshot(candidate: Candidate, role: str | None = None) -> Snapshot:
         else cost.get("estimated_delivered_nok")
     )
     action = None
-    if role in {"proxmox_compute", "storage"}:
-        action = enterprise_action(score_enterprise(candidate, role))
+    if role in VALID_ROLES:
+        action = decide(candidate, role)["action"]
     return Snapshot(
         candidate_id=candidate_id(candidate),
         vendor_id=candidate.vendor_id,
