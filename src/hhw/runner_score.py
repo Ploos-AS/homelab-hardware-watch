@@ -25,11 +25,15 @@ def score_runner(candidate: Candidate, role: str) -> dict:
         score += family_bonus
         reasons.append(f"family_fit:{family}")
 
+    arm_families = {"arm64_rk3588", "raspberry_pi_5", "arm64_other"}
     incompatible = (
+        role == "linux_ci"
+        and (family in arm_families or str(family).startswith("mac_mini"))
+    ) or (
         role == "macos_ci" and not str(family).startswith("mac_mini")
     ) or (
         role == "linux_arm64_ci"
-        and family not in {"arm64_rk3588", "raspberry_pi_5", "arm64_other"}
+        and family not in arm_families
     )
     if incompatible:
         score -= 100
