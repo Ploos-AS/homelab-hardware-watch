@@ -74,3 +74,15 @@ def test_macos_requires_mac_family():
     right = score_runner(c("mac_mini_apple_silicon", 1900), "macos_ci")
     assert right["score"] == 70
     assert runner_action(right) == "BUY"
+
+
+def test_linux_ci_rejects_arm64_family():
+    result = score_runner(c("arm64_rk3588", 1400), "linux_ci")
+    assert "architecture_mismatch" in result["reasons"]
+    assert runner_action(result) == "PASS"
+
+
+def test_linux_ci_rejects_mac_family():
+    result = score_runner(c("mac_mini_apple_silicon", 1400), "linux_ci")
+    assert "architecture_mismatch" in result["reasons"]
+    assert runner_action(result) == "PASS"
