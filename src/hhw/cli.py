@@ -173,7 +173,15 @@ def main():
         report = args.report or "reports/current-no.md"
         opportunities = args.opportunities or "reports/current-opportunities.md"
 
-    write_outputs(candidates, errors, out, report, opportunities)\n\n    if args.history_file:\n        day = date.today()\n        existing = load_price_history(args.history_file)\n        incoming = [PriceObservation.from_candidate(candidate, day) for candidate in candidates]\n        history = merge_price_history(existing, incoming)\n        save_price_history(args.history_file, history)\n
+    write_outputs(candidates, errors, out, report, opportunities)
+
+    if args.history_file:
+        day = date.today()
+        existing = load_price_history(args.history_file)
+        incoming = [PriceObservation.from_candidate(candidate, day) for candidate in candidates]
+        history = merge_price_history(existing, incoming)
+        save_price_history(args.history_file, history)
+
     if args.command == "monitor-eu":
         events = run_monitor(candidates, args.state_file, args.role)
         if args.alerts_only:
