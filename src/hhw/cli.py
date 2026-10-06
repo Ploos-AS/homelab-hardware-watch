@@ -15,6 +15,8 @@ from hhw.normalize import normalize_all
 from hhw.monitor_run import run_monitor
 from hhw.opportunity_report import markdown_opportunities
 from hhw.parity import configuration_parity
+from hhw.price_history import PriceObservation
+from hhw.price_history_store import load_price_history, merge_price_history, save_price_history
 from hhw.providers.norges_bank import fetch_daily
 from hhw.providers.tolletaten import fetch_current as fetch_customs_fx
 from hhw.reference import N150_REFERENCE, price_vs_n150
@@ -145,6 +147,7 @@ def main():
     parser.add_argument("--role", choices=sorted(VALID_ROLES), default="proxmox_compute")
     parser.add_argument("--alerts-only", action="store_true")
     parser.add_argument("--alerts-report")
+    parser.add_argument("--history-file")
     args = parser.parse_args()
 
     if args.command == "fx-update":
@@ -170,8 +173,7 @@ def main():
         report = args.report or "reports/current-no.md"
         opportunities = args.opportunities or "reports/current-opportunities.md"
 
-    write_outputs(candidates, errors, out, report, opportunities)
-
+    write_outputs(candidates, errors, out, report, opportunities)\n\n    if args.history_file:\n        day = date.today()\n        existing = load_price_history(args.history_file)\n        incoming = [PriceObservation.from_candidate(candidate, day) for candidate in candidates]\n        history = merge_price_history(existing, incoming)\n        save_price_history(args.history_file, history)\n
     if args.command == "monitor-eu":
         events = run_monitor(candidates, args.state_file, args.role)
         if args.alerts_only:
