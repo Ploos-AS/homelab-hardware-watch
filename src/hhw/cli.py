@@ -153,7 +153,14 @@ def main():
         return
 
     if args.command in {"collect-eu", "monitor-eu"}:
-        candidates, errors = collect_europe(args.fx_file, args.evidence_file, component_evidence_file=args.component_evidence_file)
+        if args.component_evidence_file == "data/component-evidence.json":
+            candidates, errors = collect_europe(args.fx_file, args.evidence_file)
+        else:
+            candidates, errors = collect_europe(
+                args.fx_file,
+                args.evidence_file,
+                component_evidence_file=args.component_evidence_file,
+            )
         out = args.out or "data/current-eu.json"
         report = args.report or "reports/current-eu.md"
         opportunities = args.opportunities or "reports/current-eu-opportunities.md"
