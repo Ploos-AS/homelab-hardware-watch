@@ -23,6 +23,7 @@ def load_price_history(path: str | Path) -> list[PriceObservation]:
             delivered_nok=x.get("delivered_nok"),
             family_key=x.get("family_key"),
             config_key=x.get("config_key"),
+            price_confidence=x.get("price_confidence", "unknown"),
         )
         for x in payload.get("observations", [])
     ]
