@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from datetime import date
 import hashlib
+import re
 
 from hhw.families import bargain_config_key, bargain_family_key
 from hhw.models import Candidate
@@ -11,6 +12,27 @@ from hhw.models import Candidate
 def listing_id(candidate: Candidate) -> str:
     """Stable identity for one vendor listing across collection runs."""
     raw = f"{candidate.vendor_id}\0{candidate.url}".encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()[:20]
+
+
+def market_identity(candidate: Candidate) -> str | None:
+    """Conservative identity for the same physical market offer across URLs.
+
+    Prefer explicit source/listing identifiers. Otherwise only fingerprint
+    sufficiently specific normalized titles; generic titles deliberately return
+    None to avoid merging unrelated hardware.
+    """
+    metadata = candidate.metadata or {}
+    external = metadata.get("source_listing_id") or metadata.get("external_listing_id")
+    if external:
+        raw = f"{candidate.vendor_id}\0external\0{external}".encode("utf-8")
+        return hashlib.sha256(raw).hexdigest()[:20]
+
+    normalized = re.sub(r"[^a-z0-9]+", " ", candidate.title.lower()).strip()
+    tokens = normalized.split()
+    if len(tokens) < 4 or not any(ch.isdigit() for ch in normalized):
+        return None
+    raw = f"{candidate.vendor_id}\0title\0{normalized}".encode("utf-8")
     return hashlib.sha256(raw).hexdigest()[:20]
 
 
@@ -26,6 +48,7 @@ class PriceObservation:
     family_key: str | None = None
     config_key: str | None = None
     price_confidence: str = "unknown"
+    market_id: str | None = None
 
     @classmethod
     def from_candidate(cls, candidate: Candidate, observed_on: date) -> "PriceObservation":
@@ -55,6 +78,7 @@ class PriceObservation:
             family_key=bargain_family_key(candidate.title),
             config_key=bargain_config_key(candidate.title),
             price_confidence=confidence,
+            market_id=market_identity(candidate),
         )
 
     def to_dict(self) -> dict:
