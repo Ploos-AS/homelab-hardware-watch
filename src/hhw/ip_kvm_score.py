@@ -6,6 +6,7 @@ from hhw.ip_kvm_families import detect_ip_kvm_family, ip_kvm_profile
 from hhw.ip_kvm_modules import interface_module_compatibility
 from hhw.ip_kvm_enrich import enrich_ip_kvm
 from hhw.ip_kvm_bundle import enrich_ip_kvm_bundle
+from hhw.ip_kvm_ready_cost import add_missing_kvm_modules
 
 
 def score_ip_kvm(candidate: Candidate) -> dict:
@@ -61,13 +62,21 @@ def score_ip_kvm(candidate: Candidate) -> dict:
         else:
             reasons.append(f"missing_interface_modules:{missing}")
 
+    module_model = None
+    modules = (candidate.metadata or {}).get("interface_modules") or []
+    if modules and len({x.get("model") for x in modules}) == 1:
+        module_model = modules[0].get("model")
+    if missing:
+        add_missing_kvm_modules(
+            candidate, family=family, missing_count=missing,
+            model=module_model, unit_cost_nok=module_cost,
+        )
+
     price, confidence, ready = decision_price_signal(candidate)
     effective = price
-    if effective is not None and missing and module_cost is None:
+    if missing and not ready.get("comparable"):
         effective = None
         reasons.append("missing_interface_module_cost_unknown")
-    elif effective is not None and module_cost is not None:
-        effective += float(module_cost)
 
     if effective is not None:
         if effective <= 2000:
