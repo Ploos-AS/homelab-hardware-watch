@@ -7,7 +7,7 @@ from hhw.models import Candidate
 
 
 KNOWN_COMPONENTS = {
-    "memory", "hba", "nic", "rails", "caddies", "psu", "gpu",
+    "memory", "hba", "nic", "rails", "caddies", "psu", "gpu", "kvm_interface_module",
 }
 
 
