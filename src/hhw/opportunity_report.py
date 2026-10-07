@@ -34,13 +34,13 @@ def markdown_opportunities(candidates, roles=None, limit=10):
         out.extend([
             f"## {role}",
             "",
-            "| Action | Score | Product | Price | Confidence | Why |",
-            "|---|---:|---|---:|---|---|",
+            "| Action | Score | Product | Price | Bargain | Confidence | Why |",
+            "|---|---:|---|---:|---|---|---|",
         ])
 
         shown = _rank(candidates, role)[:limit]
         if not shown:
-            out.append("| — | — | No qualified candidates | — | — | — |")
+            out.append("| — | — | No qualified candidates | — | — | — | — |")
 
         for result, candidate in shown:
             why = "; ".join(result["reasons"])
@@ -49,9 +49,10 @@ def markdown_opportunities(candidates, roles=None, limit=10):
                 if result.get("price_nok") is not None
                 else _price(candidate)
             )
+            bargain = (candidate.metadata or {}).get("bargain", {}).get("signal", "—")
             out.append(
                 f"| {result['action']} | {result['score']:.0f} | "
-                f"[{candidate.title}]({candidate.url}) | {price} | "
+                f"[{candidate.title}]({candidate.url}) | {price} | {bargain} | "
                 f"{result.get('price_confidence', 'unknown')} | {why} |"
             )
 
