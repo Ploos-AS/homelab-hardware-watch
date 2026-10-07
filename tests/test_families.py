@@ -36,7 +36,7 @@ def test_nuc():
 
 
 def test_lenovo_tiny():
-    assert detect_runner_family("Lenovo ThinkCentre M920q Tiny i5-9500T") == "generic_tiny"
+    assert detect_runner_family("Lenovo ThinkCentre M920q Tiny i5-9500T") == "lenovo_thinkcentre_tiny"
 
 
 
