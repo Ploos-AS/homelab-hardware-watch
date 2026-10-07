@@ -93,3 +93,20 @@ def test_ups_decision_is_available_to_monitor():
         },
     )
     assert snapshot(ups, "ups").action == "BUY"
+
+
+
+def test_bargain_transition_is_explicit():
+    old = c(500)
+    old.metadata["bargain"] = {"signal": "normal"}
+    new = c(400)
+    new.metadata["bargain"] = {"signal": "bargain"}
+    assert "became_bargain" in changes(snapshot(old), snapshot(new))
+
+
+def test_exceptional_transition_is_explicit():
+    old = c(400)
+    old.metadata["bargain"] = {"signal": "bargain"}
+    new = c(300)
+    new.metadata["bargain"] = {"signal": "exceptional"}
+    assert "became_exceptional" in changes(snapshot(old), snapshot(new))
