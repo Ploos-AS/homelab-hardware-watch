@@ -14,9 +14,10 @@ def enrich_ip_kvm_bundle(candidate):
     hw = candidate.hardware
     found: list[dict] = []
 
-    for model in MODULE_CATALOG:
-        # Accept "16x MODEL", "16 x MODEL", "16 stk MODEL", or bare MODEL.
-        pattern = rf"(?:(\d+)\s*(?:x|×|stk\.?|pcs?\.?|pieces?)\s*)?\b{re.escape(model)}\b"
+    # Match longest catalog names first and require an exact model suffix.
+    # This prevents D2CIM-DVUSB from also matching D2CIM-DVUSB-HDMI.
+    for model in sorted(MODULE_CATALOG, key=len, reverse=True):
+        pattern = rf"(?:(\d+)\s*(?:x|×|stk\.?|pcs?\.?|pieces?)\s*)?\b{re.escape(model)}(?![-A-Z0-9])"
         for match in re.finditer(pattern, text, re.I):
             count = int(match.group(1) or 1)
             info = lookup_interface_module(model)
