@@ -48,3 +48,27 @@ def test_negative_cost_rejected():
 def test_empty_key_rejected():
     with pytest.raises(ValueError):
         ev(" ", 1, 100)
+
+
+
+def test_merge_component_evidence_deduplicates_same_observation():
+    from hhw.component_evidence_store import merge_component_evidence
+    x = ComponentCostEvidence(
+        "kvm_interface_module", "kvm_module:d2cim_dvusb", 300,
+        date(2026, 10, 7), "https://example.invalid/cim",
+    )
+    merged = merge_component_evidence([x], [x])
+    assert merged == [x]
+
+
+def test_merge_component_evidence_keeps_price_history():
+    from hhw.component_evidence_store import merge_component_evidence
+    a = ComponentCostEvidence(
+        "kvm_interface_module", "kvm_module:d2cim_dvusb", 300,
+        date(2026, 10, 6), "https://example.invalid/a",
+    )
+    b = ComponentCostEvidence(
+        "kvm_interface_module", "kvm_module:d2cim_dvusb", 275,
+        date(2026, 10, 7), "https://example.invalid/b",
+    )
+    assert merge_component_evidence([a], [b]) == [a, b]
