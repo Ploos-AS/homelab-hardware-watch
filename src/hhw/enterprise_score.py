@@ -15,7 +15,7 @@ def score_enterprise(candidate: Candidate, role: str) -> dict:
     bays = hw.get("drive_bays") or {}
     controller = str(hw.get("storage_controller", "")).upper()
 
-    if role == "proxmox_compute":
+    if role in {"proxmox_compute", "proxmox_rack"}:
         if memory is not None:
             if memory >= 128:
                 score += 30; reasons.append("ram>=128gb")
