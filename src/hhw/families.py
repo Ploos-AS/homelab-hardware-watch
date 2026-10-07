@@ -8,9 +8,32 @@ G4 = re.compile(r"\b(?:G4|PowerPC|PPC|7447A?|7450)\b", re.I)
 INTEL = re.compile(r"\b(?:Intel|Core\s*(?:2\s*)?(?:Duo|Solo)|Core\s+i[3579]|i[3579][-\s]?\d{3,5})\b", re.I)
 
 FAMILY_PATTERNS = [
-    ("intel_nuc", re.compile(r"\b(?:intel\s+)?NUC\b", re.I)),
-    ("generic_tiny", re.compile(r"\b(?:ThinkCentre.*Tiny|OptiPlex.*Micro|EliteDesk.*Mini|ProDesk.*Mini)\b", re.I)),
+    ("dell_optiplex_micro", re.compile(r"\bOptiPlex\b.*\bMicro\b", re.I)),
+    ("hp_business_mini", re.compile(r"\b(?:EliteDesk|ProDesk|Elite Mini)\b.*\b(?:Mini|Desktop Mini)\b", re.I)),
+    ("lenovo_thinkcentre_tiny", re.compile(r"\bThinkCentre\b.*\bTiny\b", re.I)),
+    ("fujitsu_esprimo_q", re.compile(r"\b(?:Fujitsu\s+)?ESPRIMO\s+Q\w*", re.I)),
+    ("asus_expertcenter_pn", re.compile(r"\b(?:ASUS\s+)?(?:ExpertCenter\s+)?PN[- ]?\d{2,3}\w*\b", re.I)),
+    ("acer_veriton_mini", re.compile(r"\bAcer\s+Veriton\b.*\b(?:Mini|NUC|N\d{3,5})\b", re.I)),
+    ("minisforum_mini", re.compile(r"\bMINISFORUM\b", re.I)),
+    ("beelink_mini", re.compile(r"\bBeelink\b", re.I)),
+    ("gmktec_mini", re.compile(r"\bGMKtec\b|\bNucBox\b", re.I)),
+    ("asus_nuc", re.compile(r"\bASUS\s+NUC\b", re.I)),
+    ("intel_nuc", re.compile(r"\b(?:Intel\s+)?NUC\b", re.I)),
 ]
+
+FAMILY_TIER = {
+    "dell_optiplex_micro": "business_core",
+    "hp_business_mini": "business_core",
+    "lenovo_thinkcentre_tiny": "business_core",
+    "fujitsu_esprimo_q": "business_extended",
+    "asus_expertcenter_pn": "business_extended",
+    "acer_veriton_mini": "business_extended",
+    "intel_nuc": "business_extended",
+    "asus_nuc": "business_extended",
+    "minisforum_mini": "opportunistic_performance",
+    "beelink_mini": "opportunistic_performance",
+    "gmktec_mini": "opportunistic_performance",
+}
 
 
 def mac_mini_generation(title: str) -> str | None:
@@ -46,3 +69,11 @@ def bargain_family_key(title: str) -> str | None:
     if generation:
         return f"mac_mini_{generation}"
     return None
+
+
+
+def runner_family_tier(title: str) -> str | None:
+    family = detect_runner_family(title)
+    if family and family.startswith("mac_mini_"):
+        return "mac"
+    return FAMILY_TIER.get(family)
