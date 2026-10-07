@@ -62,3 +62,22 @@ def test_complete_count_without_compatibility_evidence_gets_no_complete_bonus():
     result = score_ip_kvm(x)
     assert result["interface_module_compatibility"] == "unknown"
     assert "interface_modules_complete" not in result["reasons"]
+
+
+
+def test_rack_kvm_derives_required_modules_from_ports():
+    x = kvm(hardware={})
+    x.title = "Raritan Dominion KX III DKX3-216 with 12x D2CIM-DVUSB"
+    result = score_ip_kvm(x)
+    assert result["kvm_ports"] == 16
+    assert result["missing_interface_modules"] == 4
+    assert "required_interface_modules_from_port_count" in result["reasons"]
+
+
+def test_single_node_kvm_does_not_invent_separate_module_requirement():
+    x = kvm(hardware={"kvm_ports": 1, "kvm_over_ip": True, "bios_level_access": True})
+    x.title = "Lantronix Spider KVM over IP"
+    result = score_ip_kvm(x)
+    assert result["ip_kvm_profile"] == "single_node"
+    assert result["missing_interface_modules"] is None
+    assert "required_interface_modules_from_port_count" not in result["reasons"]
