@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from hhw.decision_price import decision_price_signal
 from hhw.models import Candidate
+from hhw.arm_server_enrich import enrich_arm_server
 
 
 def score_arm_server(candidate: Candidate) -> dict:
+    candidate = enrich_arm_server(candidate)
     hw = candidate.hardware or {}
     score = 0
     reasons = []
