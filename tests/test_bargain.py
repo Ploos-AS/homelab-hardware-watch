@@ -69,3 +69,27 @@ def test_currency_mismatch_fails_closed():
     result = bargain_signal(history, "mac_mini_m1", "current", 400, "EUR", DAY)
     assert result["signal"] == "not_comparable"
     assert result["reason"] == "currency_mismatch"
+
+
+
+def test_gpu_family_does_not_mix_with_other_gpu_model():
+    history = [
+        obs("a", 5000, "gpu_rtx_3090"),
+        obs("b", 5200, "gpu_rtx_3090"),
+        obs("c", 4800, "gpu_rtx_3090"),
+        obs("p40", 1000, "gpu_tesla_p40"),
+    ]
+    result = bargain_signal(history, "gpu_rtx_3090", "current", 3500, "NOK", DAY)
+    assert result["stats"]["median"] == 5000
+    assert result["signal"] == "exceptional"
+
+
+def test_arm_server_families_do_not_mix():
+    history = [
+        obs("a", 7000, "arm_server_ampere_altra"),
+        obs("b", 7200, "arm_server_ampere_altra"),
+        obs("c", 6800, "arm_server_ampere_altra"),
+        obs("max", 12000, "arm_server_ampere_altra_max"),
+    ]
+    result = bargain_signal(history, "arm_server_ampere_altra", "current", 5000, "NOK", DAY)
+    assert result["stats"]["median"] == 7000
