@@ -108,3 +108,18 @@ def test_confirmed_market_excludes_estimated_import_when_enough_evidence():
     assert result["stats"]["listings"] == 3
     assert result["stats"]["confidence_basis"] == "confirmed"
     assert result["signal"] == "exceptional"
+
+
+
+def test_reposts_share_one_vote_in_market_median():
+    history = [
+        PriceObservation("url-a", "vendor", "https://x/a", date(2026,10,1), 1000, "NOK",
+                         family_key="mac_mini_m1", market_id="same-offer"),
+        PriceObservation("url-b", "vendor", "https://x/b", date(2026,10,2), 1000, "NOK",
+                         family_key="mac_mini_m1", market_id="same-offer"),
+        obs("other-a", 5000),
+        obs("other-b", 5000),
+    ]
+    result = signal(3000, history)
+    assert result["signal"] == "insufficient_history"
+    assert result["stats"]["listings"] == 3
