@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from hhw.decision_price import decision_price_signal
 from hhw.models import Candidate
+from hhw.gpu_enrich import enrich_gpu
 
 
 def score_gpu(candidate: Candidate) -> dict:
+    candidate = enrich_gpu(candidate)
     hw = candidate.hardware or {}
     score = 0
     reasons = []
