@@ -5,6 +5,7 @@ from pathlib import Path
 
 from hhw.alert_policy import filter_alerts
 from hhw.alert_report import markdown_alerts
+from hhw.bargain_enrich import enrich_bargains
 from hhw.cost_enrich import enrich_delivered_cost
 from hhw.component_enrich import enrich_component_costs
 from hhw.component_evidence_store import load_component_evidence
@@ -173,11 +174,14 @@ def main():
         report = args.report or "reports/current-no.md"
         opportunities = args.opportunities or "reports/current-opportunities.md"
 
-    write_outputs(candidates, errors, out, report, opportunities)
-
     if args.history_file:
         day = date.today()
         existing = load_price_history(args.history_file)
+        candidates = enrich_bargains(candidates, existing, day)
+
+    write_outputs(candidates, errors, out, report, opportunities)
+
+    if args.history_file:
         incoming = [PriceObservation.from_candidate(candidate, day) for candidate in candidates]
         history = merge_price_history(existing, incoming)
         save_price_history(args.history_file, history)
