@@ -7,12 +7,12 @@ from hhw.price_history import PriceObservation
 DAY = date(2026, 10, 7)
 
 
-def obs(listing, price, family="mac_mini_m1", currency="NOK"):
+def obs(listing, price, family="mac_mini_m1", currency="NOK", confidence="unknown"):
     return PriceObservation(
         listing_id=listing, vendor_id="vendor",
         url=f"https://example.invalid/{listing}",
         observed_on=date(2026, 10, 1), item_price=price,
-        currency=currency, family_key=family,
+        currency=currency, family_key=family, price_confidence=confidence,
     )
 
 
@@ -93,3 +93,18 @@ def test_arm_server_families_do_not_mix():
     ]
     result = bargain_signal(history, "arm_server_ampere_altra", "current", 5000, "NOK", DAY)
     assert result["stats"]["median"] == 7000
+
+
+
+def test_confirmed_market_excludes_estimated_import_when_enough_evidence():
+    history = [
+        obs("a", 5000, confidence="domestic"),
+        obs("b", 5000, confidence="domestic"),
+        obs("c", 5000, confidence="import_confirmed"),
+        obs("estimate", 1000, confidence="estimate"),
+    ]
+    result = signal(3500, history)
+    assert result["stats"]["median"] == 5000
+    assert result["stats"]["listings"] == 3
+    assert result["stats"]["confidence_basis"] == "confirmed"
+    assert result["signal"] == "exceptional"
