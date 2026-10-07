@@ -45,3 +45,36 @@ def test_known_raritan_cim_is_incompatible_with_aten():
 
 def test_unknown_model_stays_unknown():
     assert interface_module_model_compatibility("raritan_dominion_kx", "MYSTERY-CIM")["status"] == "unknown"
+
+
+
+def test_aten_kn_virtual_media_adapters_are_known():
+    for model, video in [("KA7166", "dvi"), ("KA7168", "hdmi"), ("KA7169", "displayport"), ("KA7175", "vga")]:
+        result = interface_module_model_compatibility("aten_kn", model)
+        assert result["status"] == "compatible"
+        assert result["virtual_media"] is True
+        assert result["video"] == video
+
+
+def test_aten_ka7170_is_compatible_but_not_virtual_media():
+    result = interface_module_model_compatibility("aten_kn", "KA7170")
+    assert result["status"] == "compatible"
+    assert result["virtual_media"] is False
+
+
+def test_avocent_mpu_video_modules_are_known():
+    for model, video in [("MPUIQ-VMCHS", "vga"), ("MPUIQ-VMCHD", "hdmi"), ("MPUIQ-VMCDV", "dvi"), ("MPUIQ-VMCDP", "displayport")]:
+        result = interface_module_model_compatibility("avocent_mergepoint", model)
+        assert result["status"] == "compatible"
+        assert result["virtual_media"] is True
+        assert result["video"] == video
+
+
+def test_avocent_dsriq_usb_has_no_virtual_media():
+    result = interface_module_model_compatibility("avocent_dsr", "DSRIQ-USB")
+    assert result["status"] == "compatible"
+    assert result["virtual_media"] is False
+
+
+def test_cross_family_module_stays_incompatible():
+    assert interface_module_model_compatibility("aten_kn", "MPUIQ-VMCHD")["status"] == "incompatible"
