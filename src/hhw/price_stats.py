@@ -87,7 +87,8 @@ def family_price_series(
 
     latest_by_listing: dict[str, PriceObservation] = {}
     for observation in sorted(selected, key=lambda x: x.observed_on):
-        latest_by_listing[observation.listing_id] = observation
+        identity = observation.market_id or observation.listing_id
+        latest_by_listing[identity] = observation
     selected = list(latest_by_listing.values())
 
     # Prefer evidence suitable for decisions. Estimated import totals may be
