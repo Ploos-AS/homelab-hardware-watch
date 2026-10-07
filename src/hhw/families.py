@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import re
 
+from hhw.arm_server_enrich import arm_server_family
+from hhw.gpu_enrich import gpu_model
+
 MAC_MINI = re.compile(r"mac\s*mini", re.I)
 APPLE_SILICON = re.compile(r"\b(M1|M2|M3|M4)\b", re.I)
 G4 = re.compile(r"\b(?:G4|PowerPC|PPC|7447A?|7450)\b", re.I)
@@ -68,6 +71,12 @@ def bargain_family_key(title: str) -> str | None:
     generation = mac_mini_generation(title)
     if generation:
         return f"mac_mini_{generation}"
+    gpu_family, _ = gpu_model(title)
+    if gpu_family:
+        return f"gpu_{gpu_family}"
+    arm_family = arm_server_family(title)
+    if arm_family:
+        return f"arm_server_{arm_family}"
     return None
 
 
