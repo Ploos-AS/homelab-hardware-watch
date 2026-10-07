@@ -8,11 +8,15 @@ def kvm(price=1500, hardware=None):
 
 
 def test_complete_16_port_enterprise_kvm_is_buy():
-    result = score_ip_kvm(kvm(hardware={
+    x = kvm(hardware={
         "kvm_ports": 16, "kvm_over_ip": True, "bios_level_access": True,
         "virtual_media": True, "dual_psu": True, "dual_lan": True,
         "required_interface_modules": 16, "included_interface_modules": 16,
-    }))
+        "interface_module_vendor": "raritan",
+        "interface_module_compatible_families": ["raritan_dominion_kx"],
+    })
+    x.title = "Raritan Dominion KX III DKX3-216"
+    result = score_ip_kvm(x)
     assert result["score"] >= 60
     assert result["missing_interface_modules"] == 0
     assert ip_kvm_action(result) == "BUY"
@@ -45,3 +49,16 @@ def test_non_ip_kvm_cannot_auto_buy():
         "virtual_media": True,
     }))
     assert ip_kvm_action(result) != "BUY"
+
+
+
+def test_complete_count_without_compatibility_evidence_gets_no_complete_bonus():
+    x = kvm(hardware={
+        "kvm_ports": 16, "kvm_over_ip": True, "bios_level_access": True,
+        "required_interface_modules": 16, "included_interface_modules": 16,
+        "interface_module_vendor": "raritan",
+    })
+    x.title = "Raritan Dominion KX III DKX3-216"
+    result = score_ip_kvm(x)
+    assert result["interface_module_compatibility"] == "unknown"
+    assert "interface_modules_complete" not in result["reasons"]
