@@ -81,3 +81,15 @@ def test_single_node_kvm_does_not_invent_separate_module_requirement():
     assert result["ip_kvm_profile"] == "single_node"
     assert result["missing_interface_modules"] is None
     assert "required_interface_modules_from_port_count" not in result["reasons"]
+
+
+
+def test_missing_cim_unit_cost_is_multiplied_by_missing_count_once():
+    x = kvm(1000, {
+        "missing_interface_modules_cost_nok": 350,
+    })
+    x.title = "Raritan Dominion KX III DKX3-216 with 12x D2CIM-DVUSB"
+    result = score_ip_kvm(x)
+    assert result["missing_interface_modules"] == 4
+    assert result["effective_cost_nok"] == 2400
+    assert result["ready_cost"]["component_cost_nok"] == 1400
