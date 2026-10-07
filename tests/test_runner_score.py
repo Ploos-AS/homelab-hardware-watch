@@ -86,3 +86,27 @@ def test_linux_ci_rejects_mac_family():
     result = score_runner(c("mac_mini_apple_silicon", 1400), "linux_ci")
     assert "architecture_mismatch" in result["reasons"]
     assert runner_action(result) == "PASS"
+
+
+
+def test_business_core_gets_full_linux_family_fit():
+    result = score_runner(c("dell_optiplex_micro", 1900), "linux_ci")
+    assert result["score"] == 55
+    assert "family_fit:dell_optiplex_micro" in result["reasons"]
+
+
+def test_business_extended_gets_slightly_lower_family_fit():
+    result = score_runner(c("fujitsu_esprimo_q", 1900), "linux_ci")
+    assert result["score"] == 52
+
+
+def test_opportunistic_performance_can_still_be_buy_when_cheap():
+    result = score_runner(c("minisforum_mini", 1400), "linux_ci")
+    assert result["score"] == 57
+    assert runner_action(result) == "WATCH"
+
+
+def test_cheap_opportunistic_can_outscore_expensive_business_core():
+    performance = score_runner(c("beelink_mini", 1400), "linux_ci")
+    business = score_runner(c("lenovo_thinkcentre_tiny", 2400), "linux_ci")
+    assert performance["score"] > business["score"]
