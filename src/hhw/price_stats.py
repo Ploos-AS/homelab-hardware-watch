@@ -90,6 +90,14 @@ def family_price_series(
         latest_by_listing[observation.listing_id] = observation
     selected = list(latest_by_listing.values())
 
+    # Prefer evidence suitable for decisions. Estimated import totals may be
+    # useful for discovery, but must not define a bargain market baseline when
+    # enough domestic/import-confirmed observations exist.
+    confirmed = [x for x in selected if x.price_confidence in {"domestic", "import_confirmed"}]
+    confidence_basis = "confirmed" if len(confirmed) >= 3 else "mixed_or_legacy"
+    if len(confirmed) >= 3:
+        selected = confirmed
+
     if not selected:
         return {"comparable": False, "reason": "no_family_history", "listings": 0}
 
@@ -115,6 +123,7 @@ def family_price_series(
         "basis": basis,
         "currency": currency,
         "listings": len(values),
+        "confidence_basis": confidence_basis,
         "median": float(median(values)),
         "low": min(values),
         "high": max(values),
