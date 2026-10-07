@@ -3,6 +3,7 @@ from __future__ import annotations
 from hhw.decision_price import decision_price_signal
 from hhw.models import Candidate
 from hhw.ip_kvm_families import detect_ip_kvm_family, ip_kvm_profile
+from hhw.ip_kvm_modules import interface_module_compatibility
 
 
 def score_ip_kvm(candidate: Candidate) -> dict:
@@ -36,12 +37,19 @@ def score_ip_kvm(candidate: Candidate) -> dict:
 
     required = hw.get("required_interface_modules")
     included = hw.get("included_interface_modules")
+    module_compatibility = interface_module_compatibility(
+        family,
+        hw.get("interface_module_vendor"),
+        hw.get("interface_module_compatible_families"),
+    )
     module_cost = hw.get("missing_interface_modules_cost_nok")
     missing = None
     if isinstance(required, int) and isinstance(included, int):
         missing = max(0, required - included)
-        if missing == 0:
+        if missing == 0 and module_compatibility == "compatible":
             score += 15; reasons.append("interface_modules_complete")
+        elif missing == 0:
+            reasons.append(f"interface_module_compatibility:{module_compatibility}")
         else:
             reasons.append(f"missing_interface_modules:{missing}")
 
@@ -81,6 +89,7 @@ def score_ip_kvm(candidate: Candidate) -> dict:
         "bios_level_access": hw.get("bios_level_access"),
         "missing_interface_modules": missing,
         "ip_kvm_family": family, "ip_kvm_profile": profile,
+        "interface_module_compatibility": module_compatibility,
     }
 
 
