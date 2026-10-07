@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from hhw.ip_kvm_module_catalog import lookup_interface_module
+
 
 FAMILY_VENDOR = {
     "raritan_dominion_kx": "raritan",
@@ -30,3 +32,12 @@ def interface_module_compatibility(
         return "incompatible"
     # Same vendor alone is insufficient: generations/features may differ.
     return "unknown"
+
+
+
+def interface_module_model_compatibility(kvm_family: str | None, model: str | None) -> dict:
+    module = lookup_interface_module(model)
+    if module is None:
+        return {"status": "unknown", "model": model}
+    status = "compatible" if kvm_family in module["families"] else "incompatible"
+    return {"status": status, "model": model, **module}
