@@ -4,9 +4,11 @@ from hhw.decision_price import decision_price_signal
 from hhw.models import Candidate
 from hhw.ip_kvm_families import detect_ip_kvm_family, ip_kvm_profile
 from hhw.ip_kvm_modules import interface_module_compatibility
+from hhw.ip_kvm_enrich import enrich_ip_kvm
 
 
 def score_ip_kvm(candidate: Candidate) -> dict:
+    candidate = enrich_ip_kvm(candidate)
     hw = candidate.hardware or {}
     score = 0
     reasons: list[str] = []
