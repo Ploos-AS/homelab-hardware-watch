@@ -4,6 +4,7 @@ from dataclasses import asdict, dataclass
 from datetime import date
 import hashlib
 
+from hhw.families import bargain_family_key
 from hhw.models import Candidate
 
 
@@ -22,6 +23,7 @@ class PriceObservation:
     item_price: float | None
     currency: str
     delivered_nok: float | None = None
+    family_key: str | None = None
 
     @classmethod
     def from_candidate(cls, candidate: Candidate, observed_on: date) -> "PriceObservation":
@@ -39,6 +41,7 @@ class PriceObservation:
             item_price=candidate.item_price,
             currency=candidate.currency,
             delivered_nok=None if delivered is None else float(delivered),
+            family_key=bargain_family_key(candidate.title),
         )
 
     def to_dict(self) -> dict:
