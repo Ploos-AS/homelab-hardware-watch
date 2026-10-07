@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from hhw.decision_price import decision_price_signal
 from hhw.models import Candidate
+from hhw.ip_kvm_families import detect_ip_kvm_family, ip_kvm_profile
 
 
 def score_ip_kvm(candidate: Candidate) -> dict:
     hw = candidate.hardware or {}
     score = 0
     reasons: list[str] = []
+    family = candidate.metadata.get("ip_kvm_family") or detect_ip_kvm_family(candidate.title)
+    profile = ip_kvm_profile(family)
 
     ports = hw.get("kvm_ports")
     if ports is not None:
@@ -77,6 +80,7 @@ def score_ip_kvm(candidate: Candidate) -> dict:
         "kvm_over_ip": hw.get("kvm_over_ip"),
         "bios_level_access": hw.get("bios_level_access"),
         "missing_interface_modules": missing,
+        "ip_kvm_family": family, "ip_kvm_profile": profile,
     }
 
 
