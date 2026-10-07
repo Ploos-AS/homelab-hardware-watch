@@ -69,7 +69,8 @@ def score_ip_kvm(candidate: Candidate) -> dict:
     if missing:
         add_missing_kvm_modules(
             candidate, family=family, missing_count=missing,
-            model=module_model, unit_cost_nok=module_cost,
+            model=module_model,
+            unit_cost_nok=(float(module_cost) / missing if module_cost is not None and missing else None),
         )
 
     price, confidence, ready = decision_price_signal(candidate)
