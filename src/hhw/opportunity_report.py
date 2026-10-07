@@ -10,6 +10,7 @@ DEFAULT_ROLES = [
     "ai_server",
     "managed_switch",
     "ups",
+    "ip_kvm",
 ]
 
 
