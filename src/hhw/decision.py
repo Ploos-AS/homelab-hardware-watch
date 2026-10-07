@@ -9,9 +9,10 @@ from hhw.switch_score import managed_switch_action, score_managed_switch
 from hhw.ups_score import score_ups, ups_action
 
 
-ENTERPRISE_ROLES = {"proxmox_compute", "storage"}
+ENTERPRISE_ROLES = {"proxmox_compute", "proxmox_rack", "storage"}
+PROXMOX_TINY_ROLE = "proxmox_tiny"
 SPECIAL_ROLES = {"ai_server", "ai_host", "managed_switch", "ups"}
-VALID_ROLES = ENTERPRISE_ROLES | RUNNER_ROLES | SPECIAL_ROLES
+VALID_ROLES = ENTERPRISE_ROLES | RUNNER_ROLES | SPECIAL_ROLES | {PROXMOX_TINY_ROLE}
 
 
 def decide(candidate: Candidate, role: str) -> dict:
@@ -19,6 +20,10 @@ def decide(candidate: Candidate, role: str) -> dict:
     if role in ENTERPRISE_ROLES:
         result = score_enterprise(candidate, role)
         action = enterprise_action(result)
+    elif role == PROXMOX_TINY_ROLE:
+        result = score_runner(candidate, "linux_ci")
+        result = {**result, "role": PROXMOX_TINY_ROLE}
+        action = runner_action(result)
     elif role in RUNNER_ROLES:
         result = score_runner(candidate, role)
         action = runner_action(result)
