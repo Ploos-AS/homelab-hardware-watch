@@ -1,7 +1,7 @@
 from datetime import date
 
 from hhw.models import Candidate
-from hhw.price_history import PriceObservation, listing_id
+from hhw.price_history import PriceObservation, listing_id, market_identity
 from hhw.price_history_store import load_price_history, merge_price_history, save_price_history
 
 
@@ -130,3 +130,23 @@ def test_domestic_observation_records_confidence():
 def test_import_confirmed_observation_records_confidence():
     observation = PriceObservation.from_candidate(candidate(1000, 1250), date(2026, 10, 7))
     assert observation.price_confidence == "import_confirmed"
+
+
+
+def test_market_identity_survives_url_repost_with_same_specific_title():
+    a = Candidate("vendor", "Dell OptiPlex 7090 Micro i7 32GB", "https://example.invalid/old")
+    b = Candidate("vendor", "Dell OptiPlex 7090 Micro i7 32GB", "https://example.invalid/new")
+    assert listing_id(a) != listing_id(b)
+    assert market_identity(a) == market_identity(b)
+
+
+def test_explicit_source_listing_id_is_preferred():
+    a = Candidate("vendor", "old title", "https://example.invalid/a")
+    b = Candidate("vendor", "new title", "https://example.invalid/b")
+    a.metadata["source_listing_id"] = "ABC-42"
+    b.metadata["source_listing_id"] = "ABC-42"
+    assert market_identity(a) == market_identity(b)
+
+
+def test_generic_title_has_no_market_identity():
+    assert market_identity(Candidate("vendor", "cheap server", "https://example.invalid/a")) is None
