@@ -21,6 +21,7 @@ def load_price_history(path: str | Path) -> list[PriceObservation]:
             item_price=x.get("item_price"),
             currency=x["currency"],
             delivered_nok=x.get("delivered_nok"),
+            family_key=x.get("family_key"),
         )
         for x in payload.get("observations", [])
     ]
