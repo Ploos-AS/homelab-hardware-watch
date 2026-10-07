@@ -47,3 +47,28 @@ def test_state_output_is_deterministically_sorted(tmp_path):
     payload = json.loads(state.read_text())
     ids = [x["candidate_id"] for x in payload["candidates"]]
     assert ids == sorted(ids)
+
+
+
+def test_legacy_state_without_bargain_signal_loads(tmp_path):
+    state = tmp_path / "state.json"
+    first = c(500)
+    run_monitor([first], str(state))
+    payload = json.loads(state.read_text())
+    payload["candidates"][0].pop("bargain_signal", None)
+    state.write_text(json.dumps(payload))
+
+    events = run_monitor([c(500)], str(state))
+    assert events == []
+
+
+def test_bargain_transition_detected_across_runs(tmp_path):
+    state = tmp_path / "state.json"
+    old = c(500)
+    old.metadata["bargain"] = {"signal": "normal"}
+    run_monitor([old], str(state))
+
+    new = c(400)
+    new.metadata["bargain"] = {"signal": "bargain"}
+    events = run_monitor([new], str(state))
+    assert "became_bargain" in [x.event for x in events]
