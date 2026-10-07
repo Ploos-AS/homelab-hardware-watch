@@ -22,6 +22,7 @@ class Snapshot:
     currency: str
     delivered_nok: float | None
     action: str | None
+    bargain_signal: str | None = None
 
     def to_dict(self) -> dict:
         return self.__dict__.copy()
@@ -45,6 +46,7 @@ def snapshot(candidate: Candidate, role: str | None = None) -> Snapshot:
         currency=candidate.currency,
         delivered_nok=delivered,
         action=action,
+        bargain_signal=(candidate.metadata or {}).get("bargain", {}).get("signal"),
     )
 
 
@@ -66,6 +68,12 @@ def changes(previous: Snapshot | None, current: Snapshot) -> list[str]:
         and current.item_price < previous.item_price
     ):
         events.append("item_price_down")
+
+    if previous.bargain_signal != current.bargain_signal:
+        if current.bargain_signal == "bargain":
+            events.append("became_bargain")
+        elif current.bargain_signal == "exceptional":
+            events.append("became_exceptional")
 
     if previous.action != current.action:
         events.append("action_changed")
