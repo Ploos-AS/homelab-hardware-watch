@@ -119,3 +119,14 @@ def test_ambiguous_v100_still_has_model_family_for_price_history():
     )
     observation = PriceObservation.from_candidate(gpu, date(2026, 10, 7))
     assert observation.family_key == "gpu_tesla_v100"
+
+
+
+def test_domestic_observation_records_confidence():
+    observation = PriceObservation.from_candidate(candidate(1000), date(2026, 10, 7))
+    assert observation.price_confidence == "domestic"
+
+
+def test_import_confirmed_observation_records_confidence():
+    observation = PriceObservation.from_candidate(candidate(1000, 1250), date(2026, 10, 7))
+    assert observation.price_confidence == "import_confirmed"
