@@ -11,7 +11,7 @@ def alert_worthy(event: MonitorEvent) -> bool:
         return True
     if event.event == "became_watch":
         return True
-    if event.event in {"delivered_price_down", "item_price_down"}:
+    if event.event in {"delivered_price_down", "item_price_down", "became_bargain", "became_exceptional"}:
         return event.action in {"BUY", "WATCH"}
     return False
 
