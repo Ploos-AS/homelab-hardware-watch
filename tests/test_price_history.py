@@ -91,3 +91,31 @@ def test_store_loads_legacy_observation_without_family_key(tmp_path):
     }]}))
     loaded = load_price_history(path)
     assert loaded[0].family_key is None
+
+
+
+def test_gpu_observation_records_exact_model_family():
+    gpu = Candidate(
+        "vendor", "NVIDIA GeForce RTX 3090 24GB",
+        "https://example.invalid/gpu/3090", item_price=4500,
+    )
+    observation = PriceObservation.from_candidate(gpu, date(2026, 10, 7))
+    assert observation.family_key == "gpu_rtx_3090"
+
+
+def test_arm_server_observation_records_architecture_family():
+    server = Candidate(
+        "vendor", "Ampere Altra Max ARM64 server",
+        "https://example.invalid/arm/altra-max", item_price=6000,
+    )
+    observation = PriceObservation.from_candidate(server, date(2026, 10, 7))
+    assert observation.family_key == "arm_server_ampere_altra_max"
+
+
+def test_ambiguous_v100_still_has_model_family_for_price_history():
+    gpu = Candidate(
+        "vendor", "NVIDIA Tesla V100",
+        "https://example.invalid/gpu/v100", item_price=2500,
+    )
+    observation = PriceObservation.from_candidate(gpu, date(2026, 10, 7))
+    assert observation.family_key == "gpu_tesla_v100"
