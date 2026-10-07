@@ -86,3 +86,29 @@ def runner_family_tier(title: str) -> str | None:
     if family and family.startswith("mac_mini_"):
         return "mac"
     return FAMILY_TIER.get(family)
+
+
+def bargain_config_key(title: str) -> str | None:
+    """Exact configuration key when the listing text provides enough facts."""
+    family = bargain_family_key(title)
+    if family is None:
+        return None
+
+    if family.startswith("gpu_") or family.startswith("arm_server_"):
+        return family
+
+    if family.startswith("mac_mini_"):
+        ram = re.search(r"\b(4|8|16|24|32|64)\s*GB\b", title, re.I)
+        storage = re.search(r"\b(128|256|512)\s*GB\b|\b(1|2|4|8)\s*TB\b", title, re.I)
+        if ram and storage:
+            storage_value = (storage.group(1) + "gb") if storage.group(1) else (storage.group(2) + "tb")
+            return f"{family}_{ram.group(1)}gb_{storage_value}"
+        return None
+
+    runner = detect_runner_family(title)
+    if runner in FAMILY_TIER:
+        cpu = re.search(r"\b(?:i[3579][- ]?)?(\d{4,5}[A-Z]{0,2})\b", title, re.I)
+        ram = re.search(r"\b(8|16|32|64|128)\s*GB\b", title, re.I)
+        if cpu and ram:
+            return f"{runner}_cpu_{cpu.group(1).lower()}_{ram.group(1)}gb"
+    return None
