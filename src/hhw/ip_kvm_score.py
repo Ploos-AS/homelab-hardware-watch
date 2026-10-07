@@ -41,6 +41,10 @@ def score_ip_kvm(candidate: Candidate) -> dict:
 
     required = hw.get("required_interface_modules")
     included = hw.get("included_interface_modules")
+    if required is None and profile == "rack_multiport" and isinstance(ports, int):
+        required = ports
+        hw["required_interface_modules"] = ports
+        reasons.append("required_interface_modules_from_port_count")
     module_compatibility = interface_module_compatibility(
         family,
         hw.get("interface_module_vendor"),
