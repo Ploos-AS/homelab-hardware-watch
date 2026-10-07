@@ -70,3 +70,24 @@ def test_different_listings_same_day_are_preserved():
         [PriceObservation.from_candidate(b, day)],
     )
     assert len(merged) == 2
+
+
+def test_mac_mini_observation_records_generation_family():
+    mac = Candidate(
+        "vendor", "Apple Mac mini M1 16GB 256GB",
+        "https://example.invalid/mac/1", item_price=3500,
+    )
+    observation = PriceObservation.from_candidate(mac, date(2026, 10, 7))
+    assert observation.family_key == "mac_mini_m1"
+
+
+def test_store_loads_legacy_observation_without_family_key(tmp_path):
+    import json
+    path = tmp_path / "legacy.json"
+    path.write_text(json.dumps({"observations": [{
+        "listing_id": "abc", "vendor_id": "vendor",
+        "url": "https://example.invalid/1", "observed_on": "2026-10-01",
+        "item_price": 1000, "currency": "NOK", "delivered_nok": None
+    }]}))
+    loaded = load_price_history(path)
+    assert loaded[0].family_key is None
