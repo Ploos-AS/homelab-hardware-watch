@@ -61,3 +61,61 @@ def price_series(
         "first_observed_on": selected[0].observed_on,
         "last_observed_on": selected[-1].observed_on,
     }
+
+
+
+def family_price_series(
+    observations: list[PriceObservation],
+    family_key: str,
+    as_of: date,
+    window_days: int | None = None,
+) -> dict:
+    """Cross-listing market statistics using the latest observation per listing.
+
+    This prevents a long-lived listing from receiving more weight merely
+    because it was collected on more days.
+    """
+    selected = [
+        x for x in observations
+        if x.family_key == family_key and x.observed_on <= as_of
+    ]
+    if window_days is not None:
+        if window_days < 1:
+            raise ValueError("window_days must be >= 1")
+        start = as_of - timedelta(days=window_days - 1)
+        selected = [x for x in selected if x.observed_on >= start]
+
+    latest_by_listing: dict[str, PriceObservation] = {}
+    for observation in sorted(selected, key=lambda x: x.observed_on):
+        latest_by_listing[observation.listing_id] = observation
+    selected = list(latest_by_listing.values())
+
+    if not selected:
+        return {"comparable": False, "reason": "no_family_history", "listings": 0}
+
+    delivered = [x.delivered_nok for x in selected]
+    if all(value is not None for value in delivered):
+        values = [float(value) for value in delivered]
+        basis = "delivered_nok"
+        currency = "NOK"
+    else:
+        if any(x.item_price is None for x in selected):
+            return {"comparable": False, "reason": "price_missing", "listings": len(selected)}
+        currencies = {x.currency for x in selected}
+        if len(currencies) != 1:
+            return {"comparable": False, "reason": "mixed_currency", "listings": len(selected)}
+        values = [float(x.item_price) for x in selected]
+        basis = "item_price"
+        currency = next(iter(currencies))
+
+    return {
+        "comparable": True,
+        "reason": None,
+        "family_key": family_key,
+        "basis": basis,
+        "currency": currency,
+        "listings": len(values),
+        "median": float(median(values)),
+        "low": min(values),
+        "high": max(values),
+    }
