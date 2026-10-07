@@ -60,3 +60,33 @@ def test_non_cluster_role_rejected():
 def test_minimum_cannot_weaken_three_node_rule():
     with pytest.raises(ValueError, match="minimum_nodes"):
         cluster_fit([node(), node()], "proxmox_tiny", minimum_nodes=2)
+
+
+
+def test_single_listing_with_quantity_three_is_cluster_ready():
+    x = node(price=1800)
+    x.metadata["quantity_available"] = 3
+    result = cluster_fit([x], "proxmox_tiny")
+    assert result["cluster_ready"] is True
+    assert result["available_listings"] == 1
+    assert result["available_nodes"] == 3
+    assert result["selected_nodes"] == 3
+    assert result["cluster_price_nok"] == 5400
+    assert "same_model" in result["reasons"]
+
+
+def test_large_refurb_batch_counts_physical_nodes():
+    x = node()
+    x.metadata["quantity_available"] = 12
+    result = cluster_fit([x], "proxmox_tiny")
+    assert result["available_nodes"] == 12
+    assert result["cluster_ready"] is True
+
+
+@pytest.mark.parametrize("quantity", [None, 0, -1, "3", True])
+def test_unknown_or_invalid_quantity_fails_closed_to_one(quantity):
+    x = node()
+    x.metadata["quantity_available"] = quantity
+    result = cluster_fit([x], "proxmox_tiny")
+    assert result["available_nodes"] == 1
+    assert result["cluster_ready"] is False
