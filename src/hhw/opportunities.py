@@ -6,7 +6,17 @@ from hhw.models import Candidate
 ROLE_FAMILY_BONUS = {
     "linux_ci": {
         "generic_tiny": 20,
-        "intel_nuc": 20,
+        "dell_optiplex_micro": 20,
+        "hp_business_mini": 20,
+        "lenovo_thinkcentre_tiny": 20,
+        "fujitsu_esprimo_q": 17,
+        "asus_expertcenter_pn": 17,
+        "acer_veriton_mini": 17,
+        "intel_nuc": 17,
+        "asus_nuc": 17,
+        "minisforum_mini": 12,
+        "beelink_mini": 12,
+        "gmktec_mini": 12,
     },
     "linux_arm64_ci": {
         "arm64_rk3588": 30,
