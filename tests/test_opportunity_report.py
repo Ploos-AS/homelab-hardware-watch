@@ -63,3 +63,19 @@ def test_special_roles_use_unified_decisions():
     report = markdown_opportunities([switch], roles=["managed_switch"])
     assert "| BUY |" in report
     assert "uplink>=25gbe" in report
+
+
+
+def test_report_shows_bargain_signal_without_changing_action():
+    c = Candidate(
+        "no", "Apple Mac mini M1 16GB 256GB",
+        "https://example.invalid/mac", item_price=3500,
+        hardware={"memory_gb": 16},
+        metadata={
+            "runner_family": "mac_mini_apple_silicon",
+            "bargain": {"signal": "exceptional", "discount_vs_median": 0.30},
+        },
+    )
+    report = markdown_opportunities([c], roles=["macos_ci"])
+    assert "| exceptional |" in report
+    assert "## macos_ci" in report
