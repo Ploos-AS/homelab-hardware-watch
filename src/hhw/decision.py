@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from hhw.ai_score import ai_host_action, score_ai_host
+from hhw.arm_server_score import arm_server_action, score_arm_server
+from hhw.gpu_score import gpu_action, score_gpu
 from hhw.enterprise_score import enterprise_action, score_enterprise
 from hhw.models import Candidate
 from hhw.ip_kvm_score import ip_kvm_action, score_ip_kvm
@@ -12,7 +14,7 @@ from hhw.ups_score import score_ups, ups_action
 
 ENTERPRISE_ROLES = {"proxmox_compute", "proxmox_rack", "storage"}
 PROXMOX_TINY_ROLE = "proxmox_tiny"
-SPECIAL_ROLES = {"ai_server", "ai_host", "managed_switch", "ups", "ip_kvm"}
+SPECIAL_ROLES = {"ai_server", "ai_host", "arm_server", "gpu", "managed_switch", "ups", "ip_kvm"}
 VALID_ROLES = ENTERPRISE_ROLES | RUNNER_ROLES | SPECIAL_ROLES | {PROXMOX_TINY_ROLE}
 
 
@@ -33,6 +35,12 @@ def decide(candidate: Candidate, role: str) -> dict:
         if role == "ai_server":
             result = {**result, "role": "ai_server"}
         action = ai_host_action(result)
+    elif role == "arm_server":
+        result = score_arm_server(candidate)
+        action = arm_server_action(result)
+    elif role == "gpu":
+        result = score_gpu(candidate)
+        action = gpu_action(result)
     elif role == "managed_switch":
         result = score_managed_switch(candidate)
         action = managed_switch_action(result)
