@@ -36,3 +36,15 @@ def save_component_evidence(path: str | Path, observations: list[ComponentCostEv
         json.dumps({"observations": [x.to_dict() for x in ordered]}, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+
+
+def merge_component_evidence(existing, incoming):
+    """Deterministically deduplicate observations without losing history."""
+    by_key = {
+        (x.component, x.evidence_key, x.observed_on, x.source): x
+        for x in [*existing, *incoming]
+    }
+    return sorted(
+        by_key.values(),
+        key=lambda x: (x.component, x.evidence_key, x.observed_on, x.source),
+    )
