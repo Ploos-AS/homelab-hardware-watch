@@ -3,6 +3,7 @@ from __future__ import annotations
 from hhw.ai_score import ai_host_action, score_ai_host
 from hhw.enterprise_score import enterprise_action, score_enterprise
 from hhw.models import Candidate
+from hhw.ip_kvm_score import ip_kvm_action, score_ip_kvm
 from hhw.runner_score import VALID_ROLES as RUNNER_ROLES
 from hhw.runner_score import runner_action, score_runner
 from hhw.switch_score import managed_switch_action, score_managed_switch
@@ -11,7 +12,7 @@ from hhw.ups_score import score_ups, ups_action
 
 ENTERPRISE_ROLES = {"proxmox_compute", "proxmox_rack", "storage"}
 PROXMOX_TINY_ROLE = "proxmox_tiny"
-SPECIAL_ROLES = {"ai_server", "ai_host", "managed_switch", "ups"}
+SPECIAL_ROLES = {"ai_server", "ai_host", "managed_switch", "ups", "ip_kvm"}
 VALID_ROLES = ENTERPRISE_ROLES | RUNNER_ROLES | SPECIAL_ROLES | {PROXMOX_TINY_ROLE}
 
 
@@ -38,6 +39,9 @@ def decide(candidate: Candidate, role: str) -> dict:
     elif role == "ups":
         result = score_ups(candidate)
         action = ups_action(result)
+    elif role == "ip_kvm":
+        result = score_ip_kvm(candidate)
+        action = ip_kvm_action(result)
     else:
         raise ValueError(f"unknown decision role: {role}")
 
