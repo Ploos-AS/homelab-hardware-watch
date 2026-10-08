@@ -28,13 +28,7 @@ def market_identity(candidate: Candidate) -> str | None:
         raw = f"{candidate.vendor_id}\0external\0{external}".encode("utf-8")
         return hashlib.sha256(raw).hexdigest()[:20]
 
-    normalized = re.sub(r"[^a-z0-9]+", " ", candidate.title.lower()).strip()
-    tokens = normalized.split()
-    if len(tokens) < 4 or not any(ch.isdigit() for ch in normalized):
-        return None
-    raw = f"{candidate.vendor_id}\0title\0{normalized}".encode("utf-8")
-    return hashlib.sha256(raw).hexdigest()[:20]
-
+    # A title fingerprint is not proof of one physical item: refurbishers\n    # often sell multiple identical machines. Require an explicit source ID.\n    return None
 
 @dataclass(frozen=True)
 class PriceObservation:
