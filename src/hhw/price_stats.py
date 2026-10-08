@@ -91,6 +91,15 @@ def family_price_series(
         latest_by_listing[identity] = observation
     selected = list(latest_by_listing.values())
 
+    # One seller may repost the same item under multiple URLs. Keep only the
+    # latest observation per vendor + family + exact configuration + price.
+    # This is a conservative heuristic, not proof of physical identity.
+    unique = {}
+    for x in sorted(selected, key=lambda x: (x.observed_on, x.listing_id)):
+        key = (x.vendor_id, x.family_key, x.config_key, x.item_price, x.currency, x.delivered_nok)
+        unique[key] = x
+    selected = list(unique.values())
+
     # Prefer evidence suitable for decisions. Estimated import totals may be
     # useful for discovery, but must not define a bargain market baseline when
     # enough domestic/import-confirmed observations exist.
